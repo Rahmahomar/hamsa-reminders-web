@@ -1,0 +1,112 @@
+/* Edit reminder modal + generic modal styles */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(232, 240, 249, 0.82);
+  backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+.modalContent {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 40px;
+  padding: 44px;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  animation: modalPop 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.modalHeader h2 {
+  font-family: var(--font-body);
+  font-size: clamp(1.25rem, 4vw, 1.5006rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.modalClose {
+  width: auto;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: white;
+}
+
+.modalForm {
+  margin: 0;
+}
+
+.field--fire-at .fire-at-picker {
+  margin-top: 0;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.modalActions .secondary,
+.modalActions .primary {
+  width: auto;
+  margin-top: 0;
+}
+
+@media (max-width: 767px) {
+  .modalContent {
+    width: min(560px, calc(100% - 24px));
+    padding: 24px 20px;
+    border-radius: 28px;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+  }
+
+  .modalActions {
+    flex-direction: column;
+  }
+
+  .modalActions .secondary,
+  .modalActions .primary {
+    width: 100%;
+  }
+}
+
+/* Reuse animations from general styling */
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
