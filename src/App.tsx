@@ -220,17 +220,12 @@ function App() {
       <NextReminderPulse reminders={reminders} connected={connected} />
 
       <main className="dashboard">
-        <div className="dashboard__col">
-          <ReminderForm celebrate={celebrate} onCreate={handleCreate} />
-        </div>
-
-        <div className="dashboard__col">
-          <ReminderList
-            reminders={reminders}
-            onCancel={handleCancel}
-            onEdit={setEditingReminder}
-          />
-        </div>
+        <ReminderForm celebrate={celebrate} onCreate={handleCreate} />
+        <ReminderList
+          reminders={reminders}
+          onCancel={handleCancel}
+          onEdit={setEditingReminder}
+        />
       </main>
 
       {message && (

@@ -1,7 +1,9 @@
+import { HamsaLogo } from "./HamsaLogo";
+
 export function Navbar() {
   return (
     <nav className="navbar">
-      <div className="brand">Hamsa Reminders</div>
+      <HamsaLogo />
 
       <div className="nav-links">
         <span>Projects</span>

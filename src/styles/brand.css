@@ -1,0 +1,21 @@
+.brand__img {
+  display: block;
+  height: 2.5rem;
+  width: auto;
+  max-width: min(100%, 360px);
+  color: var(--night);
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .brand__img {
+    height: 2.75rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .brand__img {
+    height: clamp(1.5rem, 6vw, 1.85rem);
+    max-width: min(100%, 260px);
+  }
+}
