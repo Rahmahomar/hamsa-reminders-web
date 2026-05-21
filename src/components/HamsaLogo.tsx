@@ -3,11 +3,8 @@ import {
   HAMSA_WORDMARK_HAMSA_PATH,
   HAMSA_WORDMARK_VIEWBOX,
 } from "../assets/hamsaWordmark";
+import type { HamsaLogoProps } from "../types/hamsa-logo";
 import "../styles/brand.css";
-
-type HamsaLogoProps = {
-  className?: string;
-};
 
 export function HamsaLogo({ className = "" }: HamsaLogoProps) {
   return (

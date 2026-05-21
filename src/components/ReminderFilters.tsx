@@ -1,23 +1,6 @@
-import type { ReminderFilterState, ReminderSort } from "../utils/filterReminders";
-
-type ReminderFiltersProps = {
-  filter: ReminderFilterState;
-  counts: { all: number; pending: number; fired: number; cancelled: number };
-  onChange: (next: ReminderFilterState) => void;
-};
-
-const STATUS_OPTIONS: { value: ReminderFilterState["status"]; label: string }[] = [
-  { value: "ALL", label: "All" },
-  { value: "PENDING", label: "Pending" },
-  { value: "FIRED", label: "Fired" },
-  { value: "CANCELLED", label: "Cancelled" },
-];
-
-const SORT_OPTIONS: { value: ReminderSort; label: string }[] = [
-  { value: "created-desc", label: "Newest first" },
-  { value: "fireAt-asc", label: "Soonest to fire" },
-  { value: "fireAt-desc", label: "Latest to fire" },
-];
+import { SORT_OPTIONS, STATUS_OPTIONS } from "../constants/reminder-filters";
+import type { ReminderFilterState } from "../utils/filterReminders";
+import type { ReminderFiltersProps } from "../types/reminder-filters";
 
 function countForStatus(
   status: ReminderFilterState["status"],

@@ -1,9 +1,4 @@
-import type { Reminder } from "../types/reminder";
-
-type FiredReminderOverlayProps = {
-  reminder: Reminder | null;
-  onClose: () => void;
-};
+import type { FiredReminderOverlayProps } from "../types/fired-reminder-overlay";
 
 export function FiredReminderOverlay({
   reminder,

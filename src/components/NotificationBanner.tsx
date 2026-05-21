@@ -1,7 +1,4 @@
-type NotificationBannerProps = {
-  onRequestPermission: () => void;
-  onDismiss: () => void;
-};
+import type { NotificationBannerProps } from "../types/notification-banner";
 
 export function NotificationBanner({
   onRequestPermission,
