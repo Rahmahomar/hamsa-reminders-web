@@ -1,7 +1,4 @@
-type EmptyRemindersProps = {
-  /** True when filters hide all items but reminders exist */
-  filtered?: boolean;
-};
+import type { EmptyRemindersProps } from "../types/empty-reminders";
 
 export function EmptyReminders({ filtered = false }: EmptyRemindersProps) {
   if (filtered) {

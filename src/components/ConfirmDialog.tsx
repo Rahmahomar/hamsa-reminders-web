@@ -1,15 +1,6 @@
 import { useEffect } from "react";
+import type { ConfirmDialogProps } from "../types/confirm-dialog";
 import "../styles/confirm.css";
-
-type ConfirmDialogProps = {
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  loading?: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-};
 
 export function ConfirmDialog({
   title,

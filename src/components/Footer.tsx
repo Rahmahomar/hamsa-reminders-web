@@ -1,21 +1,11 @@
 import { type FormEvent, useState } from "react";
+import {
+  COPYRIGHT_YEAR,
+  FOOTER_NAV_LEGAL,
+  FOOTER_NAV_PRIMARY,
+} from "../constants/footer";
 import { HamsaLogo } from "./HamsaLogo";
 import "../styles/footer.css";
-
-const FOOTER_NAV_PRIMARY = [
-  { label: "About", href: "https://tryhamsa.com/about" },
-  { label: "Products", href: "https://tryhamsa.com/" },
-  { label: "Solutions", href: "https://tryhamsa.com/" },
-  { label: "Contact Us", href: "https://tryhamsa.com/contact/" },
-] as const;
-
-const FOOTER_NAV_LEGAL = [
-  { label: "Terms & Services", href: "https://tryhamsa.com/terms-of-service" },
-  { label: "Privacy & Policy", href: "https://tryhamsa.com/privacy-policy" },
-  { label: "FAQs", href: "https://tryhamsa.com/#faqs" },
-] as const;
-
-const COPYRIGHT_YEAR = new Date().getFullYear();
 
 export function Footer() {
   const [email, setEmail] = useState("");
