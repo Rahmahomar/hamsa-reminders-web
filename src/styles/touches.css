@@ -149,6 +149,15 @@
 .empty-state {
   text-align: center;
   padding: 40px 20px;
+  width: 100%;
+}
+
+.panel--schedule .reminder-list:has(.empty-state) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
 }
 
 .empty-state__icon {

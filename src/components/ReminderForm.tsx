@@ -1,18 +1,44 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { FireAtPicker } from "./FireAtPicker";
 import { parseLocalDatetimeValue } from "../utils/datetimeLocal";
+import { FIRE_AT_PRESETS, getTimezoneLabel } from "../utils/fireAtPresets";
+import { validateFutureFireAt } from "../utils/validateFireAt";
 import type { ReminderFormProps } from "../types/reminder-form";
 
-export function ReminderForm({ celebrate = false, onCreate }: ReminderFormProps) {
+export function ReminderForm({
+  celebrate = false,
+  loading = false,
+  initialProjectId,
+  projectIds,
+  duplicateSeed,
+  onProjectIdChange,
+  onCreate,
+}: ReminderFormProps) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [projectId, setProjectId] = useState(
-    "550e8400-e29b-41d4-a716-446655440000"
-  );
+  const [projectId, setProjectId] = useState(initialProjectId);
   const [fireAt, setFireAt] = useState("");
-  const [fireAtError, setFireAtError] = useState<string>("");
+  const [fireAtError, setFireAtError] = useState("");
+  const [error, setError] = useState("");
 
-  const [error, setError] = useState<string>("");
+  useEffect(() => {
+    setProjectId(initialProjectId);
+  }, [initialProjectId]);
+
+  useEffect(() => {
+    if (!duplicateSeed) return;
+    setTitle(duplicateSeed.title);
+    setBody(duplicateSeed.body);
+    setProjectId(duplicateSeed.projectId);
+    setFireAt("");
+    setFireAtError("");
+    setError("");
+  }, [duplicateSeed]);
+
+  const handleProjectChange = (value: string) => {
+    setProjectId(value);
+    onProjectIdChange(value);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -36,33 +62,24 @@ export function ReminderForm({ celebrate = false, onCreate }: ReminderFormProps)
       return;
     }
 
-    let fireAtIso = "";
-    if (!fireAt) {
-      setFireAtError("Fire At is required");
-      setError("");
-      return;
-    }
-
-    const fireAtDate = parseLocalDatetimeValue(fireAt);
-    if (!fireAtDate) {
-      setFireAtError("Fire At is invalid");
-      setError("");
+    const fireAtValidation = validateFutureFireAt(fireAt);
+    if (fireAtValidation) {
+      setFireAtError(fireAtValidation);
       return;
     }
 
     setFireAtError("");
-    fireAtIso = fireAtDate.toISOString();
+    const fireAtDate = parseLocalDatetimeValue(fireAt)!;
 
     await onCreate({
       title: trimmedTitle,
-      body: body.trim(),
+      body: trimmedBody,
       projectId: trimmedProjectId,
-      fireAt: fireAtIso,
+      fireAt: fireAtDate.toISOString(),
     });
 
     setTitle("");
     setBody("");
-    setProjectId("550e8400-e29b-41d4-a716-446655440000");
     setFireAt("");
   };
 
@@ -77,61 +94,91 @@ export function ReminderForm({ celebrate = false, onCreate }: ReminderFormProps)
       </div>
 
       <div className="panel__create-body">
-      <label>Title</label>
-      <input
-        placeholder="Review project"
-        value={title}
-        onChange={(e) => {
-          setTitle(e.target.value);
-          if (error) setError("");
-        }}
-      />
-      {error === "Title is required" && (
-        <p className="message" style={{ color: "#d6001c" }}>
-          {error}
-        </p>
-      )}
+        <label>Title</label>
+        <input
+          placeholder="Review project"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            if (error) setError("");
+          }}
+          disabled={loading}
+        />
+        {error === "Title is required" && (
+          <p className="message message--error" role="alert">
+            {error}
+          </p>
+        )}
 
-      <label>Body</label>
-      <textarea
-        placeholder="Check final version"
-        value={body}
-        onChange={(e) => {
-          setBody(e.target.value);
-          if (error === "Body is required") setError("");
-        }}
-      />
-      {error === "Body is required" && (
-        <p className="message" style={{ color: "#d6001c" }}>
-          {error}
-        </p>
-      )}
+        <label>Body</label>
+        <textarea
+          placeholder="Check final version"
+          value={body}
+          onChange={(e) => {
+            setBody(e.target.value);
+            if (error === "Body is required") setError("");
+          }}
+          disabled={loading}
+        />
+        {error === "Body is required" && (
+          <p className="message message--error">{error}</p>
+        )}
 
-      <label>Project ID</label>
-      <input
-        value={projectId}
-        onChange={(e) => {
-          setProjectId(e.target.value);
-          if (error === "Project ID is required") setError("");
-        }}
-      />
-      {error === "Project ID is required" && (
-        <p className="message" style={{ color: "#d6001c" }}>
-          {error}
-        </p>
-      )}
+        <label htmlFor="project-id">Project</label>
+        <input
+          id="project-id"
+          list="project-id-options"
+          value={projectId}
+          onChange={(e) => {
+            handleProjectChange(e.target.value);
+            if (error === "Project ID is required") setError("");
+          }}
+          placeholder="Project UUID"
+          disabled={loading}
+        />
+        <datalist id="project-id-options">
+          {projectIds.map((id) => (
+            <option key={id} value={id} />
+          ))}
+        </datalist>
+        {error === "Project ID is required" && (
+          <p className="message message--error">{error}</p>
+        )}
 
-      <FireAtPicker
-        value={fireAt}
-        onChange={(next) => {
-          setFireAt(next);
-          if (fireAtError) setFireAtError("");
-        }}
-        error={fireAtError}
-      />
+        <div className="fire-at-presets">
+          <span className="fire-at-presets__label">Quick schedule</span>
+          <div className="fire-at-presets__btns">
+            {FIRE_AT_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                className="fire-at-presets__btn"
+                disabled={loading}
+                onClick={() => {
+                  setFireAt(preset.getValue());
+                  setFireAtError("");
+                }}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+          <p className="fire-at-presets__tz">Timezone: {getTimezoneLabel()}</p>
+        </div>
+
+        <FireAtPicker
+          value={fireAt}
+          onChange={(next) => {
+            setFireAt(next);
+            if (fireAtError) setFireAtError("");
+          }}
+          error={fireAtError}
+        />
       </div>
 
-      <button type="submit">Create Reminder</button>
+      <button type="submit" disabled={loading}>
+        {loading ? "Creating…" : "Create Reminder"}
+      </button>
     </form>
   );
 }

@@ -5,8 +5,13 @@ import { EmptyReminders } from "./EmptyReminders";
 
 export function ReminderList({
   reminders,
+  totalCount = 0,
+  listLoading = false,
+  hasLoadedOnce = false,
+  actionLoading = false,
   onCancel,
   onEdit,
+  onDuplicate,
 }: ReminderListProps) {
   const [now, setNow] = useState(() => Date.now());
 
@@ -23,67 +28,86 @@ export function ReminderList({
       </div>
 
       <div className="reminder-list-scroll">
+        {listLoading && !hasLoadedOnce ? (
+          <p className="reminder-list__loading">Loading reminders…</p>
+        ) : null}
+
         <div className="reminder-list">
-        {reminders.length === 0 && <EmptyReminders />}
+          {!(listLoading && !hasLoadedOnce) && reminders.length === 0 ? (
+            <EmptyReminders filtered={totalCount > 0} />
+          ) : null}
 
-        {reminders.map((reminder) => {
-          const isPending = reminder.status === "PENDING";
-          const fireAt = new Date(reminder.fireAt).getTime();
-          const remaining = fireAt - now;
-          const showCountdown = isPending && remaining > 0;
+          {reminders.map((reminder) => {
+            const isPending = reminder.status === "PENDING";
+            const fireAt = new Date(reminder.fireAt).getTime();
+            const remaining = fireAt - now;
+            const showCountdown = isPending && remaining > 0;
 
-          return (
-            <div
-              className={`reminder-card${showCountdown ? " reminder-card--pending" : ""}`}
-              key={reminder.id}
-            >
-              {showCountdown && (
-                <div
-                  className="reminder-card__progress"
-                  style={{ width: `${getReminderProgress(reminder, now)}%` }}
-                  aria-hidden
-                />
-              )}
-
-              <div>
-                <h3>{reminder.title}</h3>
-                <p>{reminder.body || "No description"}</p>
-                <small>{new Date(reminder.fireAt).toLocaleString()}</small>
+            return (
+              <div
+                className={`reminder-card${showCountdown ? " reminder-card--pending" : ""}`}
+                key={reminder.id}
+              >
                 {showCountdown && (
-                  <span className="reminder-card__countdown">
-                    <span className="reminder-card__countdown-dot" aria-hidden />
-                    {formatCountdown(remaining)}
-                  </span>
+                  <div
+                    className="reminder-card__progress"
+                    style={{ width: `${getReminderProgress(reminder, now)}%` }}
+                    aria-hidden
+                  />
                 )}
-              </div>
 
-              <div className="reminder-card__actions">
-                <span className={`badge badge--${reminder.status.toLowerCase()}`}>
-                  {reminder.status}
-                </span>
+                <div>
+                  <h3>{reminder.title}</h3>
+                  <p>{reminder.body || "No description"}</p>
+                  <small>{new Date(reminder.fireAt).toLocaleString()}</small>
+                  {showCountdown && (
+                    <span className="reminder-card__countdown">
+                      <span className="reminder-card__countdown-dot" aria-hidden />
+                      {formatCountdown(remaining)}
+                    </span>
+                  )}
+                </div>
 
-                {isPending && (
+                <div className="reminder-card__actions">
+                  <span className={`badge badge--${reminder.status.toLowerCase()}`}>
+                    {reminder.status}
+                  </span>
+
                   <div className="reminder-card__action-btns">
                     <button
                       type="button"
                       className="secondary"
-                      onClick={() => onEdit(reminder)}
+                      disabled={actionLoading}
+                      onClick={() => onDuplicate(reminder)}
                     >
-                      Edit
+                      Duplicate
                     </button>
-                    <button
-                      type="button"
-                      className="secondary danger"
-                      onClick={() => onCancel(reminder.id)}
-                    >
-                      Cancel
-                    </button>
+
+                    {isPending && (
+                      <>
+                        <button
+                          type="button"
+                          className="secondary"
+                          disabled={actionLoading}
+                          onClick={() => onEdit(reminder)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="secondary danger"
+                          disabled={actionLoading}
+                          onClick={() => onCancel(reminder.id)}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
       </div>
     </section>

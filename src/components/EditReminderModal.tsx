@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   EditReminderModalPayload,
   EditReminderModalProps,
@@ -8,6 +8,7 @@ import {
   localDatetimeInputValueToISO,
   toLocalDatetimeInputValue,
 } from "../utils/datetimeLocal";
+import { validateFutureFireAt } from "../utils/validateFireAt";
 
 export function EditReminderModal({
   reminder,
@@ -19,6 +20,9 @@ export function EditReminderModal({
   const [fireAtLocal, setFireAtLocal] = useState(
     toLocalDatetimeInputValue(reminder.fireAt)
   );
+  const [titleError, setTitleError] = useState("");
+  const [bodyError, setBodyError] = useState("");
+  const [fireAtError, setFireAtError] = useState("");
 
   const [isOpen, setIsOpen] = useState(true);
 
@@ -26,9 +30,10 @@ export function EditReminderModal({
     setTitle(reminder.title ?? "");
     setBody((reminder.body as string | undefined) ?? "");
     setFireAtLocal(toLocalDatetimeInputValue(reminder.fireAt));
+    setTitleError("");
+    setBodyError("");
+    setFireAtError("");
   }, [reminder]);
-
-  const canSave = useMemo(() => title.trim().length > 0, [title]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -50,20 +55,50 @@ export function EditReminderModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canSave) return;
+
+    const trimmedTitle = title.trim();
+    const trimmedBody = body.trim();
+    let valid = true;
+
+    if (!trimmedTitle) {
+      setTitleError("Title is required");
+      valid = false;
+    } else {
+      setTitleError("");
+    }
+
+    if (!trimmedBody) {
+      setBodyError("Body is required");
+      valid = false;
+    } else {
+      setBodyError("");
+    }
+
+    const fireAtValidation = validateFutureFireAt(fireAtLocal);
+    if (fireAtValidation) {
+      setFireAtError(fireAtValidation);
+      valid = false;
+    } else {
+      setFireAtError("");
+    }
+
+    if (!valid) return;
 
     const payload: EditReminderModalPayload = {
-      title: title.trim(),
-      body: body.trim(),
+      title: trimmedTitle,
+      body: trimmedBody,
     };
 
     const isoFireAt = localDatetimeInputValueToISO(fireAtLocal);
     if (isoFireAt) payload.fireAt = isoFireAt;
 
-    onSave(payload);
-    setIsOpen(false);
+    const result = await onSave(payload);
+    if (result !== false) {
+      setIsOpen(false);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -83,36 +118,60 @@ export function EditReminderModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="modalForm edit-modal-form">
+        <form onSubmit={handleSubmit} className="modalForm edit-modal-form" noValidate>
           <label className="field">
             <span>Title</span>
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (titleError) setTitleError("");
+              }}
               placeholder="Reminder title"
-              required
+              aria-invalid={titleError ? true : undefined}
             />
+            {titleError ? (
+              <p className="message message--error" role="alert">
+                {titleError}
+              </p>
+            ) : null}
           </label>
 
           <label className="field">
             <span>Body</span>
             <textarea
               value={body}
-              onChange={(e) => setBody(e.target.value)}
+              onChange={(e) => {
+                setBody(e.target.value);
+                if (bodyError) setBodyError("");
+              }}
               placeholder="Reminder body"
               rows={3}
+              aria-invalid={bodyError ? true : undefined}
             />
+            {bodyError ? (
+              <p className="message message--error" role="alert">
+                {bodyError}
+              </p>
+            ) : null}
           </label>
 
           <div className="field field--fire-at">
-            <FireAtPicker value={fireAtLocal} onChange={setFireAtLocal} />
+            <FireAtPicker
+              value={fireAtLocal}
+              onChange={(next) => {
+                setFireAtLocal(next);
+                if (fireAtError) setFireAtError("");
+              }}
+              error={fireAtError}
+            />
           </div>
 
           <div className="modalActions">
             <button type="button" className="secondary" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="primary" disabled={!canSave}>
+            <button type="submit" className="primary">
               Save
             </button>
           </div>

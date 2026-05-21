@@ -9,5 +9,5 @@ export type EditReminderModalPayload = {
 export type EditReminderModalProps = {
   reminder: Reminder;
   onClose: () => void;
-  onSave: (payload: EditReminderModalPayload) => void;
+  onSave: (payload: EditReminderModalPayload) => void | Promise<boolean>;
 };

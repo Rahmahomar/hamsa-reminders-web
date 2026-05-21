@@ -1,181 +1,136 @@
-import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import { useCallback, useMemo, useState } from "react";
 
 import { Layout } from "./components/Layout";
 import { TokenCard } from "./components/TokenCard";
 import { ReminderForm } from "./components/ReminderForm";
 import { ReminderList } from "./components/ReminderList";
+import { ReminderFilters } from "./components/ReminderFilters";
 import { FiredReminderOverlay } from "./components/FiredReminderOverlay";
 import { EditReminderModal } from "./components/EditReminderModal";
 import { NextReminderPulse } from "./components/NextReminderPulse";
 import { Toast } from "./components/Toast";
+import { ConfirmDialog } from "./components/ConfirmDialog";
+import { NotificationBanner } from "./components/NotificationBanner";
 
 import "./styles/modal.css";
+import "./styles/features.css";
 
+import { useReminders } from "./hooks/useReminders";
+import { useToast } from "./hooks/useToast";
+import type { Reminder } from "./types/reminder";
+import type { ReminderDuplicateSeed } from "./types/reminder-form";
 import {
-  cancelReminder,
-  createReminder,
-  getReminders,
-  updateReminder,
-} from "./api/reminders.api";
+  DEFAULT_REMINDER_FILTER,
+  filterAndSortReminders,
+} from "./utils/filterReminders";
+import {
+  loadProjectId,
+  loadProjectIds,
+  saveProjectId,
+} from "./utils/storage";
 
-import type { CreateReminderPayload, Reminder } from "./types/reminder";
-import { NOTIFICATION_SOUND, SOCKET_URL } from "./environment";
+const NOTIFICATION_DISMISS_KEY = "hamsa_notification_banner_dismissed";
 
 function App() {
-  const [token, setToken] = useState("");
-  const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [message, setMessage] = useState("");
+  const toast = useToast();
+  const onToast = useCallback(
+    (message: string, tone: "success" | "danger" | "info") => {
+      toast.show(message, tone);
+    },
+    [toast.show]
+  );
+
+  const {
+    token,
+    setToken,
+    logout,
+    reminders,
+    connected,
+    listLoading,
+    connecting,
+    hasLoadedOnce,
+    actionLoading,
+    firedReminder,
+    setFiredReminder,
+    celebrate,
+    newlyCreatedId,
+    handleConnect,
+    handleCreate,
+    handleCancel,
+    handleUpdate,
+  } = useReminders({ onToast });
+
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
-  const [firedReminder, setFiredReminder] = useState<Reminder | null>(null);
-  const [connected, setConnected] = useState(false);
-  const [celebrate, setCelebrate] = useState(false);
+  const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
+  const [filter, setFilter] = useState(DEFAULT_REMINDER_FILTER);
+  const [projectId, setProjectId] = useState(loadProjectId);
+  const [projectIds, setProjectIds] = useState(loadProjectIds);
+  const [duplicateSeed, setDuplicateSeed] = useState<ReminderDuplicateSeed | null>(
+    null
+  );
+  const [bannerDismissed, setBannerDismissed] = useState(
+    () => localStorage.getItem(NOTIFICATION_DISMISS_KEY) === "1"
+  );
 
-  const knownFiredIdsRef = useRef<Set<string>>(new Set());
-  const previousStatusesRef = useRef<Map<string, string>>(new Map());
+  const showNotificationBanner =
+    !bannerDismissed &&
+    typeof Notification !== "undefined" &&
+    Notification.permission === "default";
 
-  const notifyReminderFired = (reminder: Reminder) => {
-    if (knownFiredIdsRef.current.has(reminder.id)) return;
+  const filteredReminders = useMemo(
+    () => filterAndSortReminders(reminders, filter, newlyCreatedId),
+    [reminders, filter, newlyCreatedId]
+  );
 
-    knownFiredIdsRef.current.add(reminder.id);
+  const counts = useMemo(
+    () => ({
+      all: reminders.length,
+      pending: reminders.filter((r) => r.status === "PENDING").length,
+      fired: reminders.filter((r) => r.status === "FIRED").length,
+      cancelled: reminders.filter((r) => r.status === "CANCELLED").length,
+    }),
+    [reminders]
+  );
 
-    const audio = new Audio(NOTIFICATION_SOUND);
+  const handleProjectIdChange = useCallback((id: string) => {
+    setProjectId(id);
+    saveProjectId(id);
+    setProjectIds(loadProjectIds());
+  }, []);
 
-    audio.play().catch(() => {
-      console.log("Audio play was blocked by browser");
+  const handleDuplicate = (reminder: Reminder) => {
+    setProjectId(reminder.projectId);
+    saveProjectId(reminder.projectId);
+    setProjectIds(loadProjectIds());
+    setDuplicateSeed({
+      title: `${reminder.title} (copy)`,
+      body: reminder.body ?? "",
+      projectId: reminder.projectId,
     });
-
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Reminder fired", {
-        body: reminder.title,
-      });
-    }
-
-    setFiredReminder(reminder);
-    setMessage(`Reminder fired: ${reminder.title}`);
+    document.getElementById("dashboard")?.scrollIntoView({ behavior: "smooth" });
+    toast.show("Form prefilled — pick a new Fire At time", "info");
   };
 
-  const loadReminders = async () => {
-    if (!token) return;
-
-    try {
-      const data = await getReminders(token);
-      setConnected(true);
-
-      data.forEach((reminder) => {
-        const previousStatus = previousStatusesRef.current.get(reminder.id);
-
-        if (
-          reminder.status === "FIRED" &&
-          previousStatus === "PENDING"
-        ) {
-          notifyReminderFired(reminder);
-        }
-
-        previousStatusesRef.current.set(reminder.id, reminder.status);
-      });
-
-      setReminders(data);
-    } catch {
-      setConnected(false);
-      setMessage("Failed to fetch reminders");
-    }
+  const handleConfirmCancel = async () => {
+    if (!cancelTargetId) return;
+    const id = cancelTargetId;
+    setCancelTargetId(null);
+    await handleCancel(id);
   };
 
-  const handleConnect = async () => {
-    if ("Notification" in window && Notification.permission === "default") {
-      await Notification.requestPermission();
-    }
-
-    await loadReminders();
-  };
-
-  const handleCreate = async (payload: CreateReminderPayload) => {
-    if (!token) {
-      setMessage("Please add JWT token first");
-      return;
-    }
-
-    try {
-      await createReminder(token, payload);
-      setMessage("Reminder created successfully");
-      setCelebrate(true);
-      window.setTimeout(() => setCelebrate(false), 700);
-      await loadReminders();
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || "Create failed");
-    }
-  };
-
-  const handleCancel = async (id: string) => {
-    try {
-      await cancelReminder(token, id);
-      setMessage("Reminder cancelled");
-      await loadReminders();
-    } catch {
-      setMessage("Cancel failed");
-    }
-  };
-
-  const handleUpdate = async (
+  const handleEditSave = async (
     id: string,
-    payload: {
-      title?: string;
-      body?: string;
-      fireAt?: string;
-    }
+    payload: Parameters<typeof handleUpdate>[1]
   ) => {
-    try {
-      await updateReminder(token, id, payload);
-      setMessage("Reminder updated successfully");
-      setEditingReminder(null);
-      await loadReminders();
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || "Update failed");
-    }
+    const ok = await handleUpdate(id, payload);
+    if (ok) setEditingReminder(null);
+    return ok;
   };
 
-  useEffect(() => {
-    if (!token) return;
-
-    loadReminders();
-
-    const socket = io(SOCKET_URL);
-
-    socket.on("connect", () => {
-      console.log("Connected to socket:", socket.id);
-    });
-
-    socket.on("reminder:fired", (event) => {
-      const fired: Reminder = {
-        id: event.reminderId,
-        userId: event.userId,
-        projectId: event.projectId,
-        title: event.title,
-        body: event.body,
-        fireAt: event.fireAt,
-        status: "FIRED",
-        createdAt: event.firedAt,
-        updatedAt: event.firedAt,
-      };
-
-      notifyReminderFired(fired);
-      loadReminders();
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected");
-    });
-
-    const fallbackInterval = setInterval(() => {
-      loadReminders();
-    }, 30000);
-
-    return () => {
-      socket.disconnect();
-      clearInterval(fallbackInterval);
-    };
-  }, [token]);
+  const dismissBanner = () => {
+    localStorage.setItem(NOTIFICATION_DISMISS_KEY, "1");
+    setBannerDismissed(true);
+  };
 
   return (
     <Layout>
@@ -183,7 +138,18 @@ function App() {
         <EditReminderModal
           reminder={editingReminder}
           onClose={() => setEditingReminder(null)}
-          onSave={(payload) => handleUpdate(editingReminder.id, payload)}
+          onSave={(payload) => handleEditSave(editingReminder.id, payload)}
+        />
+      )}
+
+      {cancelTargetId && (
+        <ConfirmDialog
+          title="Cancel reminder?"
+          message="This reminder will be marked as cancelled and will not fire."
+          confirmLabel="Cancel reminder"
+          loading={actionLoading}
+          onConfirm={handleConfirmCancel}
+          onCancel={() => setCancelTargetId(null)}
         />
       )}
 
@@ -191,6 +157,16 @@ function App() {
         reminder={firedReminder}
         onClose={() => setFiredReminder(null)}
       />
+
+      {showNotificationBanner && (
+        <NotificationBanner
+          onRequestPermission={async () => {
+            await Notification.requestPermission();
+            dismissBanner();
+          }}
+          onDismiss={dismissBanner}
+        />
+      )}
 
       <section className="hero">
         <div className="reveal">
@@ -209,30 +185,49 @@ function App() {
         <TokenCard
           token={token}
           connected={connected}
-          onTokenChange={(value) => {
-            setToken(value);
-            if (!value.trim()) setConnected(false);
-          }}
+          connecting={connecting}
+          onTokenChange={setToken}
           onConnect={handleConnect}
+          onLogout={logout}
         />
       </section>
 
       <NextReminderPulse reminders={reminders} connected={connected} />
 
-      <main className="dashboard">
-        <ReminderForm celebrate={celebrate} onCreate={handleCreate} />
-        <ReminderList
-          reminders={reminders}
-          onCancel={handleCancel}
-          onEdit={setEditingReminder}
+      <main id="dashboard" className="dashboard">
+        <ReminderForm
+          celebrate={celebrate}
+          loading={actionLoading}
+          initialProjectId={projectId}
+          projectIds={projectIds}
+          duplicateSeed={duplicateSeed}
+          onProjectIdChange={handleProjectIdChange}
+          onCreate={async (payload) => {
+            await handleCreate(payload);
+            setFilter((f) => ({ ...f, status: "ALL", sort: "created-desc" }));
+            setDuplicateSeed(null);
+          }}
         />
+        <div className="dashboard__schedule">
+          <ReminderFilters filter={filter} counts={counts} onChange={setFilter} />
+          <ReminderList
+            reminders={filteredReminders}
+            totalCount={reminders.length}
+            listLoading={listLoading}
+            hasLoadedOnce={hasLoadedOnce}
+            actionLoading={actionLoading}
+            onCancel={(id) => setCancelTargetId(id)}
+            onEdit={setEditingReminder}
+            onDuplicate={handleDuplicate}
+          />
+        </div>
       </main>
 
-      {message && (
+      {toast.message && (
         <Toast
-          message={message}
-          tone="success"
-          onClose={() => setMessage("")}
+          message={toast.message}
+          tone={toast.tone}
+          onClose={toast.clear}
         />
       )}
     </Layout>
