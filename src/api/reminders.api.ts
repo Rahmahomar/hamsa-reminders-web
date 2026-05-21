@@ -3,6 +3,7 @@ import { REMINDERS_ENDPOINT } from "../constants/api";
 import type { CreateReminderPayload, Reminder } from "../types/reminder";
 import type { ApiResponse } from "../types/api";
 import type { UpdateReminderPayload } from "../types/update-reminder-payload";
+import { normalizeReminder, normalizeReminders } from "../utils/normalizeReminder";
 
 export const getReminders = async (token: string) => {
   const res = await apiClient.get<ApiResponse<Reminder[]>>(
@@ -10,7 +11,7 @@ export const getReminders = async (token: string) => {
     { headers: authHeaders(token) }
   );
 
-  return res.data.data;
+  return normalizeReminders(res.data.data);
 };
 
 export const createReminder = async (
@@ -23,7 +24,7 @@ export const createReminder = async (
     { headers: authHeaders(token) }
   );
 
-  return res.data.data;
+  return normalizeReminder(res.data.data);
 };
 
 export const cancelReminder = async (token: string, id: string) => {
@@ -46,5 +47,5 @@ export const updateReminder = async (
     { headers: authHeaders(token) }
   );
 
-  return res.data.data;
+  return normalizeReminder(res.data.data);
 };

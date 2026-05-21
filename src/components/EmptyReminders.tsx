@@ -1,4 +1,23 @@
-export function EmptyReminders() {
+type EmptyRemindersProps = {
+  /** True when filters hide all items but reminders exist */
+  filtered?: boolean;
+};
+
+export function EmptyReminders({ filtered = false }: EmptyRemindersProps) {
+  if (filtered) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state__icon" aria-hidden>
+          🔔
+        </div>
+        <p className="empty-state__title">No reminders here</p>
+        <p className="empty-state__text">
+          Try another filter or clear your search to see more items.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="empty-state">
       <div className="empty-state__icon" aria-hidden>

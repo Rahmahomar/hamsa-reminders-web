@@ -3,8 +3,10 @@ import type { TokenCardProps } from "../types/token-card";
 export function TokenCard({
   token,
   connected,
+  connecting = false,
   onTokenChange,
   onConnect,
+  onLogout,
 }: TokenCardProps) {
   return (
     <div
@@ -24,11 +26,19 @@ export function TokenCard({
         placeholder="Paste JWT token here..."
         value={token}
         onChange={(e) => onTokenChange(e.target.value)}
+        disabled={connecting}
       />
 
-      <button type="button" onClick={onConnect}>
-        {connected ? "Refresh" : "Connect"}
-      </button>
+      <div className="token-card__actions">
+        <button type="button" onClick={onConnect} disabled={connecting || !token.trim()}>
+          {connecting ? "Connecting…" : connected ? "Refresh" : "Connect"}
+        </button>
+        {token.trim() ? (
+          <button type="button" className="secondary" onClick={onLogout} disabled={connecting}>
+            Logout
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

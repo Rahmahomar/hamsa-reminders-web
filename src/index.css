@@ -571,8 +571,12 @@ button:hover {
 
 .message {
   margin-top: 18px;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+.message--success {
   color: #2e9d00;
+  font-weight: 700;
 }
 
 .empty {
@@ -681,7 +685,8 @@ button:hover {
     align-items: stretch;
   }
 
-  .dashboard > .panel {
+  .dashboard > .panel,
+  .dashboard > .dashboard__schedule {
     box-sizing: border-box;
     width: 100%;
     min-height: var(--dashboard-panel-height);
@@ -689,13 +694,16 @@ button:hover {
     max-height: var(--dashboard-panel-height);
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 
   .dashboard > form.panel {
     overflow: hidden;
   }
 
-  .dashboard > .panel--schedule {
+  .dashboard__schedule .panel--schedule {
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -749,7 +757,8 @@ button:hover {
     align-items: stretch;
   }
 
-  .dashboard > .panel {
+  .dashboard > .panel,
+  .dashboard > .dashboard__schedule {
     box-sizing: border-box;
     width: 100%;
     min-height: var(--dashboard-panel-height);
@@ -757,13 +766,16 @@ button:hover {
     max-height: var(--dashboard-panel-height);
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 
   .dashboard > form.panel {
     overflow: hidden;
   }
 
-  .dashboard > .panel--schedule {
+  .dashboard__schedule .panel--schedule {
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -843,7 +855,8 @@ button:hover {
     width: 100%;
   }
 
-  .dashboard > .panel {
+  .dashboard > .panel,
+  .dashboard > .dashboard__schedule {
     width: 100%;
     min-height: auto;
     height: auto;
