@@ -2,6 +2,7 @@ import type { Reminder } from "./reminder";
 
 export type ReminderListProps = {
   reminders: Reminder[];
+  connected?: boolean;
   /** Total reminders before filter (for empty copy) */
   totalCount?: number;
   listLoading?: boolean;

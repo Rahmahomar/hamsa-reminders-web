@@ -9,7 +9,9 @@ export function Navbar() {
       </a>
 
       <div className="nav-links">
-        <a href="#dashboard">Reminders</a>
+        <a href="#dashboard" aria-current="page">
+          Reminders
+        </a>
         <a href="https://tryhamsa.com/" target="_blank" rel="noopener noreferrer">
           Products
         </a>
