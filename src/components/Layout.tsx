@@ -6,10 +6,15 @@ import { PageBackground } from "./PageBackground";
 export function Layout({ children }: LayoutProps) {
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <PageBackground />
       <div className="page">
         <Navbar />
-        <div className="page__content">{children}</div>
+        <main id="main-content" className="page__content">
+          {children}
+        </main>
       </div>
       <Footer />
     </>

@@ -16,6 +16,7 @@ import "./styles/modal.css";
 import "./styles/features.css";
 
 import { useReminders } from "./hooks/useReminders";
+import { usePageTitle } from "./hooks/usePageTitle";
 import { useToast } from "./hooks/useToast";
 import type { Reminder } from "./types/reminder";
 import type { ReminderDuplicateSeed } from "./types/reminder-form";
@@ -91,6 +92,8 @@ function App() {
     }),
     [reminders]
   );
+
+  usePageTitle(connected, counts.pending);
 
   const handleProjectIdChange = useCallback((id: string) => {
     setProjectId(id);
@@ -168,10 +171,10 @@ function App() {
         />
       )}
 
-      <section className="hero">
+      <section className="hero" aria-labelledby="hero-title">
         <div className="reveal">
           <p className="hero-eyebrow">WE BUILD</p>
-          <h1 className="hero-title">
+          <h1 id="hero-title" className="hero-title">
             Smart Reminders
             <br />
             For Project Teams
@@ -194,7 +197,7 @@ function App() {
 
       <NextReminderPulse reminders={reminders} connected={connected} />
 
-      <main id="dashboard" className="dashboard">
+      <section id="dashboard" className="dashboard" aria-label="Reminders dashboard">
         <ReminderForm
           celebrate={celebrate}
           loading={actionLoading}
@@ -209,9 +212,12 @@ function App() {
           }}
         />
         <div className="dashboard__schedule">
-          <ReminderFilters filter={filter} counts={counts} onChange={setFilter} />
+          {connected ? (
+            <ReminderFilters filter={filter} counts={counts} onChange={setFilter} />
+          ) : null}
           <ReminderList
             reminders={filteredReminders}
+            connected={connected}
             totalCount={reminders.length}
             listLoading={listLoading}
             hasLoadedOnce={hasLoadedOnce}
@@ -221,7 +227,7 @@ function App() {
             onDuplicate={handleDuplicate}
           />
         </div>
-      </main>
+      </section>
 
       {toast.message && (
         <Toast

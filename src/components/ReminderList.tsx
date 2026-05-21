@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import type { ReminderListProps } from "../types/reminder-list";
 import { formatCountdown, getReminderProgress } from "../utils/reminderTime";
 import { EmptyReminders } from "./EmptyReminders";
+import { ReminderListSkeleton } from "./ReminderListSkeleton";
+import { ScheduleLocked } from "./ScheduleLocked";
 
 export function ReminderList({
   reminders,
   totalCount = 0,
+  connected = false,
   listLoading = false,
   hasLoadedOnce = false,
   actionLoading = false,
@@ -21,23 +24,34 @@ export function ReminderList({
   }, []);
 
   return (
-    <section className="panel panel--schedule reveal reveal-delay-3">
+    <section
+      className="panel panel--schedule reveal reveal-delay-3"
+      aria-labelledby="schedule-heading"
+    >
       <div className="panel__schedule-head">
         <p className="eyebrow">REMINDERS</p>
-        <h2>Your Schedule</h2>
+        <h2 id="schedule-heading">Your Schedule</h2>
       </div>
 
       <div className="reminder-list-scroll">
         {listLoading && !hasLoadedOnce ? (
-          <p className="reminder-list__loading">Loading reminders…</p>
+          <div role="status" aria-live="polite" aria-busy="true">
+            <p className="reminder-list__loading sr-only">Loading reminders…</p>
+            <ReminderListSkeleton />
+          </div>
         ) : null}
 
+        {!connected && !(listLoading && !hasLoadedOnce) ? <ScheduleLocked /> : null}
+
         <div className="reminder-list">
-          {!(listLoading && !hasLoadedOnce) && reminders.length === 0 ? (
+          {connected &&
+          !(listLoading && !hasLoadedOnce) &&
+          reminders.length === 0 ? (
             <EmptyReminders filtered={totalCount > 0} />
           ) : null}
 
-          {reminders.map((reminder) => {
+          {connected &&
+            reminders.map((reminder) => {
             const isPending = reminder.status === "PENDING";
             const fireAt = new Date(reminder.fireAt).getTime();
             const remaining = fireAt - now;
@@ -107,7 +121,7 @@ export function ReminderList({
                 </div>
               </div>
             );
-          })}
+            })}
         </div>
       </div>
     </section>
