@@ -96,7 +96,6 @@ body {
 }
 
 .nav-links span {
-  cursor: pointer;
   transition: 0.2s ease;
 }
 
@@ -277,7 +276,6 @@ button:hover {
 .secondary-btn {
   border: none;
   outline: none;
-  cursor: pointer;
   border-radius: 999px;
   padding: 12px 24px;
   font-family: var(--font-body);
@@ -403,7 +401,6 @@ button {
   font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 400;
-  cursor: pointer;
   transition: 0.2s ease;
 }
 
@@ -1172,4 +1169,14 @@ button:hover {
   50% {
     transform: translateY(-18px) rotate(14deg);
   }
+}
+
+a,
+a *,
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }

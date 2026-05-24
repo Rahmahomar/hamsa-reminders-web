@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
 import {
@@ -10,6 +10,11 @@ import {
 import { NOTIFICATION_SOUND, SOCKET_URL } from "../environment";
 import type { CreateReminderPayload, Reminder } from "../types/reminder";
 import type { UpdateReminderPayload } from "../types/update-reminder-payload";
+import { computeReminderCounts } from "../utils/computeReminderCounts";
+import type { ReminderFilterState } from "../utils/filterReminders";
+import { reminderQueryKey, hasActiveReminderFilters } from "../utils/reminderQueryParams";
+import { useDebounce } from "./useDebounce";
+import { isAbortError, isAuthError, isNotFoundError } from "../utils/apiError";
 import {
   clearAuthStorage,
   loadToken,
@@ -18,6 +23,7 @@ import {
 
 type UseRemindersOptions = {
   onToast: (message: string, tone: "success" | "danger" | "info") => void;
+  filter: ReminderFilterState;
 };
 
 type LoadRemindersOptions = {
@@ -35,29 +41,48 @@ type ReminderFiredEvent = {
   firedAt: string;
 };
 
-export function useReminders({ onToast }: UseRemindersOptions) {
+export function useReminders({ onToast, filter }: UseRemindersOptions) {
   const savedOnMount = loadToken();
   const [token, setTokenState] = useState(savedOnMount);
   const [sessionToken, setSessionToken] = useState(savedOnMount);
   const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [allReminders, setAllReminders] = useState<Reminder[]>([]);
   const [connected, setConnected] = useState(false);
   const [listLoading, setListLoading] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [firedReminder, setFiredReminder] = useState<Reminder | null>(null);
   const [celebrate, setCelebrate] = useState(false);
-  const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
+
+  const debouncedQuery = useDebounce(filter.query, 400);
+
+  const apiFilter = useMemo<ReminderFilterState>(
+    () => ({
+      status: filter.status,
+      query: debouncedQuery,
+      sort: filter.sort,
+    }),
+    [filter.status, filter.sort, debouncedQuery]
+  );
+
+  const counts = useMemo(
+    () => computeReminderCounts(allReminders),
+    [allReminders]
+  );
 
   const onToastRef = useRef(onToast);
   onToastRef.current = onToast;
 
   const knownFiredIdsRef = useRef<Set<string>>(new Set());
-  const clearNewlyCreatedTimerRef = useRef<number | null>(null);
   const previousStatusesRef = useRef<Map<string, string>>(new Map());
   const bootstrapDoneRef = useRef(false);
   const socketRef = useRef<Socket | null>(null);
   const socketTokenRef = useRef("");
+  const listAbortRef = useRef<AbortController | null>(null);
+  const apiFilterRef = useRef(apiFilter);
+  apiFilterRef.current = apiFilter;
 
   const notifyReminderFired = useCallback((reminder: Reminder) => {
     if (knownFiredIdsRef.current.has(reminder.id)) return;
@@ -79,42 +104,107 @@ export function useReminders({ onToast }: UseRemindersOptions) {
     onToastRef.current(`Reminder fired: ${reminder.title}`, "success");
   }, []);
 
-  const loadReminders = useCallback(async (options?: LoadRemindersOptions) => {
-    const activeToken = (options?.tokenOverride ?? sessionToken).trim();
-    if (!activeToken) return;
+  const trackStatusTransitions = useCallback((data: Reminder[]) => {
+    data.forEach((reminder) => {
+      const previousStatus = previousStatusesRef.current.get(reminder.id);
 
-    const silent = options?.silent ?? false;
-    if (!silent) setListLoading(true);
+      if (reminder.status === "FIRED" && previousStatus === "PENDING") {
+        notifyReminderFired(reminder);
+      }
 
-    try {
-      const data = await getReminders(activeToken);
-      setConnected(true);
-      setHasLoadedOnce(true);
+      previousStatusesRef.current.set(reminder.id, reminder.status);
+    });
+  }, [notifyReminderFired]);
 
-      data.forEach((reminder) => {
-        const previousStatus = previousStatusesRef.current.get(reminder.id);
+  const refreshAllReminders = useCallback(
+    async (options?: LoadRemindersOptions) => {
+      const activeToken = (options?.tokenOverride ?? sessionToken).trim();
+      if (!activeToken) return;
 
-        if (reminder.status === "FIRED" && previousStatus === "PENDING") {
-          notifyReminderFired(reminder);
+      try {
+        const data = await getReminders(activeToken);
+        trackStatusTransitions(data);
+        setAllReminders(data);
+        setConnected(true);
+      } catch (err: unknown) {
+        if (isAuthError(err)) {
+          setConnected(false);
+        }
+      }
+    },
+    [sessionToken, trackStatusTransitions]
+  );
+
+  const loadFilteredReminders = useCallback(
+    async (options?: LoadRemindersOptions) => {
+      const activeToken = (options?.tokenOverride ?? sessionToken).trim();
+      if (!activeToken) return;
+
+      const silent = options?.silent ?? false;
+      const activeFilter = apiFilterRef.current;
+
+      listAbortRef.current?.abort();
+      const controller = new AbortController();
+      listAbortRef.current = controller;
+
+      if (!silent) {
+        setListLoading(true);
+        setListError(null);
+      }
+
+      try {
+        const data = await getReminders(activeToken, {
+          filter: activeFilter,
+          signal: controller.signal,
+        });
+
+        if (controller.signal.aborted) return;
+
+        setReminders(data);
+        setConnected(true);
+        setHasLoadedOnce(true);
+        setListError(null);
+      } catch (err: unknown) {
+        if (isAbortError(err)) return;
+
+        setHasLoadedOnce(true);
+
+        if (isNotFoundError(err)) {
+          setReminders([]);
+          setListError(null);
+          return;
         }
 
-        previousStatusesRef.current.set(reminder.id, reminder.status);
-      });
+        const activeFilter = apiFilterRef.current;
+        const hasFilters = hasActiveReminderFilters(activeFilter);
 
-      setReminders(data);
-    } catch {
-      setConnected(false);
-      setHasLoadedOnce(true);
-      if (!silent) {
-        onToastRef.current("Failed to fetch reminders", "danger");
+        setReminders([]);
+        setListError(null);
+
+        if (!hasFilters && !silent) {
+          onToastRef.current("Failed to fetch reminders", "danger");
+        }
+      } finally {
+        if (!controller.signal.aborted && !silent) {
+          setListLoading(false);
+        }
       }
-    } finally {
-      if (!silent) setListLoading(false);
-    }
-  }, [sessionToken, notifyReminderFired]);
+    },
+    [sessionToken]
+  );
 
-  const loadRemindersRef = useRef(loadReminders);
-  loadRemindersRef.current = loadReminders;
+  const refreshReminders = useCallback(
+    async (options?: LoadRemindersOptions) => {
+      await Promise.all([
+        loadFilteredReminders(options),
+        refreshAllReminders(options),
+      ]);
+    },
+    [loadFilteredReminders, refreshAllReminders]
+  );
+
+  const refreshRemindersRef = useRef(refreshReminders);
+  refreshRemindersRef.current = refreshReminders;
 
   const notifyReminderFiredRef = useRef(notifyReminderFired);
   notifyReminderFiredRef.current = notifyReminderFired;
@@ -125,12 +215,15 @@ export function useReminders({ onToast }: UseRemindersOptions) {
   }, []);
 
   const logout = useCallback(() => {
+    listAbortRef.current?.abort();
     clearAuthStorage();
     setTokenState("");
     setSessionToken("");
     setConnected(false);
     setReminders([]);
+    setAllReminders([]);
     setHasLoadedOnce(false);
+    setListError(null);
     onToastRef.current("Logged out", "info");
   }, []);
 
@@ -150,11 +243,11 @@ export function useReminders({ onToast }: UseRemindersOptions) {
     saveToken(trimmed);
 
     try {
-      await loadReminders({ tokenOverride: trimmed });
+      await refreshReminders({ tokenOverride: trimmed });
     } finally {
       setConnecting(false);
     }
-  }, [token, loadReminders]);
+  }, [token, refreshReminders]);
 
   const handleCreate = useCallback(
     async (payload: CreateReminderPayload) => {
@@ -165,21 +258,12 @@ export function useReminders({ onToast }: UseRemindersOptions) {
 
       setActionLoading(true);
       try {
-        const created = await createReminder(sessionToken, payload);
-
-        if (clearNewlyCreatedTimerRef.current !== null) {
-          window.clearTimeout(clearNewlyCreatedTimerRef.current);
-        }
-        setNewlyCreatedId(created.id);
-        clearNewlyCreatedTimerRef.current = window.setTimeout(() => {
-          setNewlyCreatedId(null);
-          clearNewlyCreatedTimerRef.current = null;
-        }, 60_000);
+        await createReminder(sessionToken, payload);
 
         onToastRef.current("Reminder created successfully", "success");
         setCelebrate(true);
         window.setTimeout(() => setCelebrate(false), 700);
-        await loadReminders({ silent: true });
+        await refreshReminders({ silent: true });
       } catch (err: unknown) {
         const msg =
           (err as { response?: { data?: { message?: string } } })?.response
@@ -189,7 +273,7 @@ export function useReminders({ onToast }: UseRemindersOptions) {
         setActionLoading(false);
       }
     },
-    [sessionToken, loadReminders]
+    [sessionToken, refreshReminders]
   );
 
   const handleCancel = useCallback(
@@ -198,14 +282,14 @@ export function useReminders({ onToast }: UseRemindersOptions) {
       try {
         await cancelReminder(sessionToken, id);
         onToastRef.current("Reminder cancelled", "success");
-        await loadReminders({ silent: true });
+        await refreshReminders({ silent: true });
       } catch {
         onToastRef.current("Cancel failed", "danger");
       } finally {
         setActionLoading(false);
       }
     },
-    [sessionToken, loadReminders]
+    [sessionToken, refreshReminders]
   );
 
   const handleUpdate = useCallback(
@@ -214,7 +298,7 @@ export function useReminders({ onToast }: UseRemindersOptions) {
       try {
         await updateReminder(sessionToken, id, payload);
         onToastRef.current("Reminder updated successfully", "success");
-        await loadReminders({ silent: true });
+        await refreshReminders({ silent: true });
         return true;
       } catch (err: unknown) {
         const msg =
@@ -226,7 +310,7 @@ export function useReminders({ onToast }: UseRemindersOptions) {
         setActionLoading(false);
       }
     },
-    [sessionToken, loadReminders]
+    [sessionToken, refreshReminders]
   );
 
   useEffect(() => {
@@ -237,8 +321,21 @@ export function useReminders({ onToast }: UseRemindersOptions) {
     if (!saved) return;
 
     setSessionToken(saved);
-    void loadRemindersRef.current({ tokenOverride: saved });
   }, []);
+
+  useEffect(() => {
+    const activeToken = sessionToken.trim();
+    if (!activeToken) return;
+
+    void loadFilteredReminders();
+  }, [sessionToken, apiFilter, loadFilteredReminders]);
+
+  useEffect(() => {
+    const activeToken = sessionToken.trim();
+    if (!activeToken) return;
+
+    void refreshAllReminders();
+  }, [sessionToken, refreshAllReminders]);
 
   useEffect(() => {
     const activeToken = sessionToken.trim();
@@ -289,13 +386,13 @@ export function useReminders({ onToast }: UseRemindersOptions) {
       };
 
       notifyReminderFiredRef.current(fired);
-      void loadRemindersRef.current({ silent: true });
+      void refreshRemindersRef.current({ silent: true });
     };
 
     socket.on("reminder:fired", onFired);
 
     const fallbackInterval = window.setInterval(
-      () => void loadRemindersRef.current({ silent: true }),
+      () => void refreshRemindersRef.current({ silent: true }),
       30000
     );
 
@@ -310,21 +407,31 @@ export function useReminders({ onToast }: UseRemindersOptions) {
     };
   }, [sessionToken]);
 
+  useEffect(
+    () => () => {
+      listAbortRef.current?.abort();
+    },
+    []
+  );
+
   return {
     token,
     setToken,
     logout,
     reminders,
+    allReminders,
+    counts,
     connected,
     listLoading,
+    listError,
     connecting,
     hasLoadedOnce,
     actionLoading,
     firedReminder,
     setFiredReminder,
     celebrate,
-    newlyCreatedId,
-    loadReminders,
+    debouncedQuery,
+    apiFilterKey: reminderQueryKey(apiFilter),
     handleConnect,
     handleCreate,
     handleCancel,
