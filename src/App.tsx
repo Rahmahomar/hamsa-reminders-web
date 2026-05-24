@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Layout } from "./components/Layout";
 import { TokenCard } from "./components/TokenCard";
@@ -14,16 +14,15 @@ import { NotificationBanner } from "./components/NotificationBanner";
 
 import "./styles/modal.css";
 import "./styles/features.css";
+import "./styles/ux.css";
 
 import { useReminders } from "./hooks/useReminders";
 import { usePageTitle } from "./hooks/usePageTitle";
 import { useToast } from "./hooks/useToast";
 import type { Reminder } from "./types/reminder";
 import type { ReminderDuplicateSeed } from "./types/reminder-form";
-import {
-  DEFAULT_REMINDER_FILTER,
-  filterAndSortReminders,
-} from "./utils/filterReminders";
+import { DEFAULT_REMINDER_FILTER } from "./utils/filterReminders";
+import { hasActiveReminderFilters } from "./utils/reminderQueryParams";
 import {
   loadProjectId,
   loadProjectIds,
@@ -41,29 +40,9 @@ function App() {
     [toast.show]
   );
 
-  const {
-    token,
-    setToken,
-    logout,
-    reminders,
-    connected,
-    listLoading,
-    connecting,
-    hasLoadedOnce,
-    actionLoading,
-    firedReminder,
-    setFiredReminder,
-    celebrate,
-    newlyCreatedId,
-    handleConnect,
-    handleCreate,
-    handleCancel,
-    handleUpdate,
-  } = useReminders({ onToast });
-
+  const [filter, setFilter] = useState(DEFAULT_REMINDER_FILTER);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
-  const [filter, setFilter] = useState(DEFAULT_REMINDER_FILTER);
   const [projectId, setProjectId] = useState(loadProjectId);
   const [projectIds, setProjectIds] = useState(loadProjectIds);
   const [duplicateSeed, setDuplicateSeed] = useState<ReminderDuplicateSeed | null>(
@@ -73,25 +52,36 @@ function App() {
     () => localStorage.getItem(NOTIFICATION_DISMISS_KEY) === "1"
   );
 
+  const {
+    token,
+    setToken,
+    logout,
+    reminders,
+    allReminders,
+    counts,
+    connected,
+    listLoading,
+    connecting,
+    hasLoadedOnce,
+    actionLoading,
+    firedReminder,
+    setFiredReminder,
+    celebrate,
+    debouncedQuery,
+    handleConnect,
+    handleCreate,
+    handleCancel,
+    handleUpdate,
+  } = useReminders({ onToast, filter });
+
   const showNotificationBanner =
     !bannerDismissed &&
     typeof Notification !== "undefined" &&
     Notification.permission === "default";
 
-  const filteredReminders = useMemo(
-    () => filterAndSortReminders(reminders, filter, newlyCreatedId),
-    [reminders, filter, newlyCreatedId]
-  );
-
-  const counts = useMemo(
-    () => ({
-      all: reminders.length,
-      pending: reminders.filter((r) => r.status === "PENDING").length,
-      fired: reminders.filter((r) => r.status === "FIRED").length,
-      cancelled: reminders.filter((r) => r.status === "CANCELLED").length,
-    }),
-    [reminders]
-  );
+  const isFilteredEmpty =
+    reminders.length === 0 &&
+    hasActiveReminderFilters({ ...filter, query: debouncedQuery });
 
   usePageTitle(connected, counts.pending);
 
@@ -195,7 +185,7 @@ function App() {
         />
       </section>
 
-      <NextReminderPulse reminders={reminders} connected={connected} />
+      <NextReminderPulse reminders={allReminders} connected={connected} />
 
       <section id="dashboard" className="dashboard" aria-label="Reminders dashboard">
         <ReminderForm
@@ -207,7 +197,12 @@ function App() {
           onProjectIdChange={handleProjectIdChange}
           onCreate={async (payload) => {
             await handleCreate(payload);
-            setFilter((f) => ({ ...f, status: "ALL", sort: "created-desc" }));
+            setFilter((f) => ({
+              ...f,
+              status: "ALL",
+              query: "",
+              sort: "created-desc",
+            }));
             setDuplicateSeed(null);
           }}
         />
@@ -216,9 +211,10 @@ function App() {
             <ReminderFilters filter={filter} counts={counts} onChange={setFilter} />
           ) : null}
           <ReminderList
-            reminders={filteredReminders}
+            reminders={reminders}
             connected={connected}
-            totalCount={reminders.length}
+            connecting={connecting}
+            filtered={isFilteredEmpty}
             listLoading={listLoading}
             hasLoadedOnce={hasLoadedOnce}
             actionLoading={actionLoading}

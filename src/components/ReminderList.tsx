@@ -7,8 +7,9 @@ import { ScheduleLocked } from "./ScheduleLocked";
 
 export function ReminderList({
   reminders,
-  totalCount = 0,
   connected = false,
+  connecting = false,
+  filtered = false,
   listLoading = false,
   hasLoadedOnce = false,
   actionLoading = false,
@@ -41,13 +42,15 @@ export function ReminderList({
           </div>
         ) : null}
 
-        {!connected && !(listLoading && !hasLoadedOnce) ? <ScheduleLocked /> : null}
+        {!connected && !connecting && !(listLoading && !hasLoadedOnce) ? (
+          <ScheduleLocked />
+        ) : null}
 
         <div className="reminder-list">
           {connected &&
           !(listLoading && !hasLoadedOnce) &&
           reminders.length === 0 ? (
-            <EmptyReminders filtered={totalCount > 0} />
+            <EmptyReminders filtered={filtered} />
           ) : null}
 
           {connected &&

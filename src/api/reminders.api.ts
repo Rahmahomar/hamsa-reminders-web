@@ -4,14 +4,41 @@ import type { CreateReminderPayload, Reminder } from "../types/reminder";
 import type { ApiResponse } from "../types/api";
 import type { UpdateReminderPayload } from "../types/update-reminder-payload";
 import { normalizeReminder, normalizeReminders } from "../utils/normalizeReminder";
+import type { ReminderListQuery } from "../types/reminder-list-query";
+import { buildReminderQueryParams } from "../utils/reminderQueryParams";
+import type { ReminderFilterState } from "../utils/filterReminders";
 
-export const getReminders = async (token: string) => {
-  const res = await apiClient.get<ApiResponse<Reminder[]>>(
-    REMINDERS_ENDPOINT,
-    { headers: authHeaders(token) }
-  );
+export type GetRemindersOptions = {
+  signal?: AbortSignal;
+  filter?: ReminderFilterState;
+  query?: ReminderListQuery;
+};
 
-  return normalizeReminders(res.data.data);
+export const getReminders = async (
+  token: string,
+  options?: GetRemindersOptions
+) => {
+  let url = REMINDERS_ENDPOINT;
+
+  if (options?.filter) {
+    const params = buildReminderQueryParams(options.filter);
+    const qs = params.toString();
+    if (qs) url = `${REMINDERS_ENDPOINT}?${qs}`;
+  } else if (options?.query) {
+    const params = new URLSearchParams();
+    if (options.query.status) params.set("status", options.query.status);
+    if (options.query.search) params.set("search", options.query.search);
+    if (options.query.sort) params.set("sort", options.query.sort);
+    const qs = params.toString();
+    if (qs) url = `${REMINDERS_ENDPOINT}?${qs}`;
+  }
+
+  const res = await apiClient.get<ApiResponse<Reminder[]>>(url, {
+    headers: authHeaders(token),
+    signal: options?.signal,
+  });
+
+  return normalizeReminders(res.data.data ?? []);
 };
 
 export const createReminder = async (

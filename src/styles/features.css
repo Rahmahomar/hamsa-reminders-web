@@ -115,7 +115,6 @@
   font-family: var(--font-body);
   font-size: 0.875rem;
   color: var(--muted);
-  cursor: pointer;
   transition: 0.2s ease;
   width: auto;
   margin: 0;
@@ -193,7 +192,6 @@
   line-height: 1.2;
   color: var(--muted);
   white-space: nowrap;
-  cursor: pointer;
   width: auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
