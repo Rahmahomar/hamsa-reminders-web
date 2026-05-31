@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
 import { Layout } from "./components/Layout";
-import { TokenCard } from "./components/TokenCard";
+import { LoginPage } from "./components/LoginPage";
 import { ReminderForm } from "./components/ReminderForm";
 import { ReminderList } from "./components/ReminderList";
 import { ReminderFilters } from "./components/ReminderFilters";
@@ -54,6 +54,7 @@ function App() {
 
   const {
     token,
+    sessionToken,
     setToken,
     logout,
     reminders,
@@ -133,8 +134,30 @@ function App() {
     setBannerDismissed(true);
   };
 
+  const isSignedIn = sessionToken.trim().length > 0;
+
+  if (!isSignedIn) {
+    return (
+      <>
+        <LoginPage
+          token={token}
+          connecting={connecting}
+          onTokenChange={setToken}
+          onConnect={handleConnect}
+        />
+        {toast.message && (
+          <Toast
+            message={toast.message}
+            tone={toast.tone}
+            onClose={toast.clear}
+          />
+        )}
+      </>
+    );
+  }
+
   return (
-    <Layout hideFooter={!!firedReminder}>
+    <Layout hideFooter={!!firedReminder} onLogout={logout}>
       {editingReminder && (
         <EditReminderModal
           reminder={editingReminder}
@@ -168,30 +191,6 @@ function App() {
           onDismiss={dismissBanner}
         />
       )}
-
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="reveal">
-          <p className="hero-eyebrow">WE BUILD</p>
-          <h1 id="hero-title" className="hero-title">
-            Smart Reminders
-            <br />
-            For Project Teams
-          </h1>
-          <p className="hero-subtitle">
-            Schedule reminders tied to your projects and let background workers
-            fire them at the perfect time.
-          </p>
-        </div>
-
-        <TokenCard
-          token={token}
-          connected={connected}
-          connecting={connecting}
-          onTokenChange={setToken}
-          onConnect={handleConnect}
-          onLogout={logout}
-        />
-      </section>
 
       <NextReminderPulse reminders={allReminders} connected={connected} />
 

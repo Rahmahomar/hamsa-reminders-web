@@ -3,7 +3,7 @@ import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { PageBackground } from "./PageBackground";
 
-export function Layout({ children, hideFooter = false }: LayoutProps) {
+export function Layout({ children, hideFooter = false, onLogout }: LayoutProps) {
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -11,7 +11,7 @@ export function Layout({ children, hideFooter = false }: LayoutProps) {
       </a>
       <PageBackground />
       <div className="page">
-        <Navbar />
+        <Navbar onLogout={onLogout} />
         <main id="main-content" className="page__content">
           {children}
         </main>

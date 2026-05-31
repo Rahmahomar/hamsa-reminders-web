@@ -453,6 +453,7 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
 
   return {
     token,
+    sessionToken,
     setToken,
     logout,
     reminders,
