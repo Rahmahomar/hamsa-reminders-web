@@ -47,3 +47,8 @@ export function reminderQueryKey(filter: ReminderFilterState): string {
 export function hasActiveReminderFilters(filter: ReminderFilterState): boolean {
   return filter.status !== "ALL" || filter.query.trim().length > 0;
 }
+
+/** One API response can feed both the list and tab counts (no status/search filter). */
+export function canUseSingleFetch(filter: ReminderFilterState): boolean {
+  return filter.status === "ALL" && filter.query.trim().length === 0;
+}

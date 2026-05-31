@@ -7,14 +7,15 @@ import {
   getReminders,
   updateReminder,
 } from "../api/reminders.api";
-import { NOTIFICATION_SOUND, SOCKET_URL } from "../environment";
+import { SOCKET_URL } from "../environment";
 import type { CreateReminderPayload, Reminder } from "../types/reminder";
 import type { UpdateReminderPayload } from "../types/update-reminder-payload";
 import { computeReminderCounts } from "../utils/computeReminderCounts";
 import type { ReminderFilterState } from "../utils/filterReminders";
-import { reminderQueryKey, hasActiveReminderFilters } from "../utils/reminderQueryParams";
+import { reminderQueryKey, hasActiveReminderFilters, canUseSingleFetch } from "../utils/reminderQueryParams";
 import { useDebounce } from "./useDebounce";
 import { isAbortError, isAuthError, isNotFoundError } from "../utils/apiError";
+import { playNotificationSound } from "../utils/notificationSound";
 import {
   clearAuthStorage,
   loadToken,
@@ -40,6 +41,9 @@ type ReminderFiredEvent = {
   fireAt: string;
   firedAt: string;
 };
+
+const POLL_INTERVAL_CONNECTED_MS = 120_000;
+const POLL_INTERVAL_DISCONNECTED_MS = 30_000;
 
 export function useReminders({ onToast, filter }: UseRemindersOptions) {
   const savedOnMount = loadToken();
@@ -83,16 +87,14 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
   const listAbortRef = useRef<AbortController | null>(null);
   const apiFilterRef = useRef(apiFilter);
   apiFilterRef.current = apiFilter;
+  const socketConnectedRef = useRef(false);
+  const pollTimeoutRef = useRef<number | null>(null);
 
   const notifyReminderFired = useCallback((reminder: Reminder) => {
     if (knownFiredIdsRef.current.has(reminder.id)) return;
 
     knownFiredIdsRef.current.add(reminder.id);
-
-    const audio = new Audio(NOTIFICATION_SOUND);
-    audio.play().catch(() => {
-      console.log("Audio play was blocked by browser");
-    });
+    playNotificationSound();
 
     if ("Notification" in window && Notification.permission === "granted") {
       new Notification("Reminder fired", {
@@ -161,6 +163,10 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
         if (controller.signal.aborted) return;
 
         setReminders(data);
+        if (canUseSingleFetch(activeFilter)) {
+          trackStatusTransitions(data);
+          setAllReminders(data);
+        }
         setConnected(true);
         setHasLoadedOnce(true);
         setListError(null);
@@ -195,6 +201,11 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
 
   const refreshReminders = useCallback(
     async (options?: LoadRemindersOptions) => {
+      const activeFilter = apiFilterRef.current;
+      if (canUseSingleFetch(activeFilter)) {
+        await loadFilteredReminders(options);
+        return;
+      }
       await Promise.all([
         loadFilteredReminders(options),
         refreshAllReminders(options),
@@ -333,6 +344,7 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
   useEffect(() => {
     const activeToken = sessionToken.trim();
     if (!activeToken) return;
+    if (canUseSingleFetch(apiFilterRef.current)) return;
 
     void refreshAllReminders();
   }, [sessionToken, refreshAllReminders]);
@@ -372,6 +384,19 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
 
     socketRef.current = socket;
 
+    const onConnect = () => {
+      socketConnectedRef.current = true;
+    };
+    const onDisconnect = () => {
+      socketConnectedRef.current = false;
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    if (socket.connected) {
+      socketConnectedRef.current = true;
+    }
+
     const onFired = (event: ReminderFiredEvent) => {
       const fired: Reminder = {
         id: event.reminderId,
@@ -391,15 +416,27 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
 
     socket.on("reminder:fired", onFired);
 
-    const fallbackInterval = window.setInterval(
-      () => void refreshRemindersRef.current({ silent: true }),
-      30000
-    );
+    const schedulePoll = () => {
+      pollTimeoutRef.current = window.setTimeout(() => {
+        void refreshRemindersRef.current({ silent: true });
+        schedulePoll();
+      }, socketConnectedRef.current
+        ? POLL_INTERVAL_CONNECTED_MS
+        : POLL_INTERVAL_DISCONNECTED_MS);
+    };
+
+    schedulePoll();
 
     return () => {
-      window.clearInterval(fallbackInterval);
+      if (pollTimeoutRef.current !== null) {
+        window.clearTimeout(pollTimeoutRef.current);
+        pollTimeoutRef.current = null;
+      }
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
       socket.off("reminder:fired", onFired);
       socket.disconnect();
+      socketConnectedRef.current = false;
       if (socketRef.current === socket) {
         socketRef.current = null;
         socketTokenRef.current = "";

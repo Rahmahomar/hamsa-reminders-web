@@ -338,6 +338,10 @@
     animation: none;
   }
 
+  .reminder-card:hover {
+    transform: none;
+  }
+
   .next-pulse__fill,
   .reminder-card__progress {
     transition: none;

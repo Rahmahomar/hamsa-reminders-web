@@ -91,7 +91,7 @@ function App() {
     setProjectIds(loadProjectIds());
   }, []);
 
-  const handleDuplicate = (reminder: Reminder) => {
+  const handleDuplicate = useCallback((reminder: Reminder) => {
     setProjectId(reminder.projectId);
     saveProjectId(reminder.projectId);
     setProjectIds(loadProjectIds());
@@ -102,7 +102,15 @@ function App() {
     });
     document.getElementById("dashboard")?.scrollIntoView({ behavior: "smooth" });
     toast.show("Form prefilled — pick a new Fire At time", "info");
-  };
+  }, [toast.show]);
+
+  const handleCancelRequest = useCallback((id: string) => {
+    setCancelTargetId(id);
+  }, []);
+
+  const handleEditRequest = useCallback((reminder: Reminder) => {
+    setEditingReminder(reminder);
+  }, []);
 
   const handleConfirmCancel = async () => {
     if (!cancelTargetId) return;
@@ -218,8 +226,8 @@ function App() {
             listLoading={listLoading}
             hasLoadedOnce={hasLoadedOnce}
             actionLoading={actionLoading}
-            onCancel={(id) => setCancelTargetId(id)}
-            onEdit={setEditingReminder}
+            onCancel={handleCancelRequest}
+            onEdit={handleEditRequest}
             onDuplicate={handleDuplicate}
           />
         </div>
