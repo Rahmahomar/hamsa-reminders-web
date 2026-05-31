@@ -88,11 +88,40 @@ body {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 32px;
   font-family: var(--font-body);
   font-size: 18.01px;
   font-weight: 400;
   color: var(--night);
+}
+
+.nav-links a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: var(--primary-dark);
+}
+
+.navbar__logout {
+  width: auto;
+  margin: 0;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--night);
+  font-size: 0.9375rem;
+  font-family: inherit;
+}
+
+.navbar__logout:hover {
+  background: var(--night);
+  color: #fff;
+  border-color: var(--night);
 }
 
 .nav-links span {

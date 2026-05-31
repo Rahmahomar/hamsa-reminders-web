@@ -1,7 +1,8 @@
 import { CONSOLE_URL } from "../environment";
+import type { NavbarProps } from "../types/navbar";
 import { HamsaLogo } from "./HamsaLogo";
 
-export function Navbar() {
+export function Navbar({ onLogout }: NavbarProps) {
   return (
     <nav className="navbar">
       <a href="/" className="navbar__brand" aria-label="Hamsa Reminder home">
@@ -18,6 +19,11 @@ export function Navbar() {
         <a href={CONSOLE_URL} target="_blank" rel="noopener noreferrer">
           Console
         </a>
+        {onLogout ? (
+          <button type="button" className="navbar__logout" onClick={onLogout}>
+            Log out
+          </button>
+        ) : null}
       </div>
     </nav>
   );
