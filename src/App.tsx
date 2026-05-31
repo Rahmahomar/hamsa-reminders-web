@@ -126,7 +126,7 @@ function App() {
   };
 
   return (
-    <Layout>
+    <Layout hideFooter={!!firedReminder}>
       {editingReminder && (
         <EditReminderModal
           reminder={editingReminder}
