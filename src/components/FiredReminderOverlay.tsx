@@ -1,9 +1,19 @@
+import { useEffect } from "react";
 import type { FiredReminderOverlayProps } from "../types/fired-reminder-overlay";
 
 export function FiredReminderOverlay({
   reminder,
   onClose,
 }: FiredReminderOverlayProps) {
+  useEffect(() => {
+    if (!reminder) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [reminder]);
+
   if (!reminder) return null;
 
   return (

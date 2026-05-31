@@ -3,7 +3,7 @@ import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { PageBackground } from "./PageBackground";
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, hideFooter = false }: LayoutProps) {
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -16,7 +16,7 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </main>
       </div>
-      <Footer />
+      {!hideFooter ? <Footer /> : null}
     </>
   );
 }
