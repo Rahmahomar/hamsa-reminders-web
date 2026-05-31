@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import type { NextReminderPulseProps } from "../types/next-reminder-pulse";
+import { useNow } from "../hooks/useNow";
 import {
   formatCountdown,
   getNextPendingReminder,
@@ -10,17 +11,15 @@ export function NextReminderPulse({
   reminders,
   connected,
 }: NextReminderPulseProps) {
-  const [now, setNow] = useState(() => Date.now());
+  const next = useMemo(
+    () => (connected ? getNextPendingReminder(reminders) : null),
+    [connected, reminders]
+  );
 
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+  const needsClock = connected && next !== null;
+  const now = useNow(needsClock);
 
-  if (!connected) return null;
-
-  const next = getNextPendingReminder(reminders);
-  if (!next) return null;
+  if (!connected || !next) return null;
 
   const remaining = new Date(next.fireAt).getTime() - now;
   const progress = getReminderProgress(next, now);

@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { memo, useMemo } from "react";
 import type { ReminderListProps } from "../types/reminder-list";
-import { formatCountdown, getReminderProgress } from "../utils/reminderTime";
+import { useNow } from "../hooks/useNow";
 import { EmptyReminders } from "./EmptyReminders";
+import { ReminderCard } from "./ReminderCard";
 import { ReminderListSkeleton } from "./ReminderListSkeleton";
 import { ScheduleLocked } from "./ScheduleLocked";
 
-export function ReminderList({
+export const ReminderList = memo(function ReminderList({
   reminders,
   connected = false,
   connecting = false,
@@ -17,12 +18,17 @@ export function ReminderList({
   onEdit,
   onDuplicate,
 }: ReminderListProps) {
-  const [now, setNow] = useState(() => Date.now());
+  const needsClock = useMemo(
+    () =>
+      connected &&
+      reminders.some((r) => {
+        if (r.status !== "PENDING") return false;
+        return new Date(r.fireAt).getTime() > Date.now();
+      }),
+    [connected, reminders]
+  );
 
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+  const now = useNow(needsClock);
 
   return (
     <section
@@ -55,78 +61,24 @@ export function ReminderList({
 
           {connected &&
             reminders.map((reminder) => {
-            const isPending = reminder.status === "PENDING";
-            const fireAt = new Date(reminder.fireAt).getTime();
-            const remaining = fireAt - now;
-            const showCountdown = isPending && remaining > 0;
+              const isPending = reminder.status === "PENDING";
+              const fireAt = new Date(reminder.fireAt).getTime();
+              const showCountdown = isPending && needsClock && fireAt > now;
 
-            return (
-              <div
-                className={`reminder-card${showCountdown ? " reminder-card--pending" : ""}`}
-                key={reminder.id}
-              >
-                {showCountdown && (
-                  <div
-                    className="reminder-card__progress"
-                    style={{ width: `${getReminderProgress(reminder, now)}%` }}
-                    aria-hidden
-                  />
-                )}
-
-                <div>
-                  <h3>{reminder.title}</h3>
-                  <p>{reminder.body || "No description"}</p>
-                  <small>{new Date(reminder.fireAt).toLocaleString()}</small>
-                  {showCountdown && (
-                    <span className="reminder-card__countdown">
-                      <span className="reminder-card__countdown-dot" aria-hidden />
-                      {formatCountdown(remaining)}
-                    </span>
-                  )}
-                </div>
-
-                <div className="reminder-card__actions">
-                  <span className={`badge badge--${reminder.status.toLowerCase()}`}>
-                    {reminder.status}
-                  </span>
-
-                  <div className="reminder-card__action-btns">
-                    <button
-                      type="button"
-                      className="secondary"
-                      disabled={actionLoading}
-                      onClick={() => onDuplicate(reminder)}
-                    >
-                      Duplicate
-                    </button>
-
-                    {isPending && (
-                      <>
-                        <button
-                          type="button"
-                          className="secondary"
-                          disabled={actionLoading}
-                          onClick={() => onEdit(reminder)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="secondary danger"
-                          disabled={actionLoading}
-                          onClick={() => onCancel(reminder.id)}
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
+              return (
+                <ReminderCard
+                  key={reminder.id}
+                  reminder={reminder}
+                  countdownNow={showCountdown ? now : undefined}
+                  actionLoading={actionLoading}
+                  onCancel={onCancel}
+                  onEdit={onEdit}
+                  onDuplicate={onDuplicate}
+                />
+              );
             })}
         </div>
       </div>
     </section>
   );
-}
+});

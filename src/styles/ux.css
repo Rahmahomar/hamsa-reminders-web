@@ -34,7 +34,7 @@
   outline-offset: 2px;
 }
 
-:focus-visible {
+:focus-visible:not(input):not(textarea):not(select) {
   outline: 3px solid rgba(151, 222, 0, 0.65);
   outline-offset: 2px;
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildReminderListQuery,
   buildReminderQueryParams,
+  canUseSingleFetch,
   hasActiveReminderFilters,
 } from "./reminderQueryParams";
 import { mapSortToApi } from "../constants/reminder-api-sort";
@@ -56,5 +57,15 @@ describe("reminderQueryParams", () => {
     expect(
       hasActiveReminderFilters({ ...DEFAULT_REMINDER_FILTER, query: "x" })
     ).toBe(true);
+  });
+
+  it("detects when a single fetch covers list and counts", () => {
+    expect(canUseSingleFetch(DEFAULT_REMINDER_FILTER)).toBe(true);
+    expect(
+      canUseSingleFetch({ ...DEFAULT_REMINDER_FILTER, status: "PENDING" })
+    ).toBe(false);
+    expect(
+      canUseSingleFetch({ ...DEFAULT_REMINDER_FILTER, query: "test" })
+    ).toBe(false);
   });
 });

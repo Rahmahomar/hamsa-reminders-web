@@ -15,7 +15,11 @@
 .panel input[aria-invalid="true"],
 .panel textarea[aria-invalid="true"] {
   border-color: #d6001c;
-  box-shadow: 0 0 0 3px rgba(214, 0, 28, 0.18);
+  box-shadow: inset 0 0 0 2px rgba(214, 0, 28, 0.25);
+}
+
+.panel__create-body {
+  padding: 4px 6px 4px 4px;
 }
 
 .nav-links a {
@@ -159,8 +163,9 @@
 }
 
 .reminder-filters__search:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(151, 222, 0, 0.2);
+  border-color: rgba(151, 222, 0, 0.9);
+  box-shadow: inset 0 0 0 2px rgba(151, 222, 0, 0.35);
+  outline: none;
 }
 
 .reminder-filters__sort-group {
