@@ -1,10 +1,12 @@
 import { useCallback, useState } from "react";
 
 import { Layout } from "./components/Layout";
+import { AuthRestoringScreen } from "./components/AuthRestoringScreen";
 import { LoginPage } from "./components/LoginPage";
 import { ReminderForm } from "./components/ReminderForm";
 import { ReminderList } from "./components/ReminderList";
 import { ReminderFilters } from "./components/ReminderFilters";
+import { RemindersPageHeader } from "./components/RemindersPageHeader";
 import { FiredReminderOverlay } from "./components/FiredReminderOverlay";
 import { EditReminderModal } from "./components/EditReminderModal";
 import { NextReminderPulse } from "./components/NextReminderPulse";
@@ -14,6 +16,9 @@ import { NotificationBanner } from "./components/NotificationBanner";
 
 import "./styles/modal.css";
 import "./styles/features.css";
+import "./styles/dashboard.css";
+import "./styles/navbar.css";
+import "./styles/responsive.css";
 import "./styles/ux.css";
 
 import { useReminders } from "./hooks/useReminders";
@@ -55,6 +60,7 @@ function App() {
   const {
     token,
     sessionToken,
+    isRestoringSession,
     setToken,
     logout,
     reminders,
@@ -101,9 +107,19 @@ function App() {
       body: reminder.body ?? "",
       projectId: reminder.projectId,
     });
-    document.getElementById("dashboard")?.scrollIntoView({ behavior: "smooth" });
+    document
+      .getElementById("create-reminder-sidebar")
+      ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    document.getElementById("reminder-title")?.focus();
     toast.show("Form prefilled — pick a new Fire At time", "info");
   }, [toast.show]);
+
+  const focusCreateForm = useCallback(() => {
+    document
+      .getElementById("create-reminder-sidebar")
+      ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    document.getElementById("reminder-title")?.focus();
+  }, []);
 
   const handleCancelRequest = useCallback((id: string) => {
     setCancelTargetId(id);
@@ -135,6 +151,10 @@ function App() {
   };
 
   const isSignedIn = sessionToken.trim().length > 0;
+
+  if (isRestoringSession) {
+    return <AuthRestoringScreen />;
+  }
 
   if (!isSignedIn) {
     return (
@@ -192,28 +212,9 @@ function App() {
         />
       )}
 
-      <NextReminderPulse reminders={allReminders} connected={connected} />
-
       <section id="dashboard" className="dashboard" aria-label="Reminders dashboard">
-        <ReminderForm
-          celebrate={celebrate}
-          loading={actionLoading}
-          initialProjectId={projectId}
-          projectIds={projectIds}
-          duplicateSeed={duplicateSeed}
-          onProjectIdChange={handleProjectIdChange}
-          onCreate={async (payload) => {
-            await handleCreate(payload);
-            setFilter((f) => ({
-              ...f,
-              status: "ALL",
-              query: "",
-              sort: "created-desc",
-            }));
-            setDuplicateSeed(null);
-          }}
-        />
-        <div className="dashboard__schedule">
+        <div className="dashboard__main">
+          <RemindersPageHeader onNewReminder={focusCreateForm} />
           {connected ? (
             <ReminderFilters filter={filter} counts={counts} onChange={setFilter} />
           ) : null}
@@ -230,7 +231,30 @@ function App() {
             onDuplicate={handleDuplicate}
           />
         </div>
+
+        <aside className="dashboard__sidebar" aria-label="Create reminder">
+          <ReminderForm
+            celebrate={celebrate}
+            loading={actionLoading}
+            initialProjectId={projectId}
+            projectIds={projectIds}
+            duplicateSeed={duplicateSeed}
+            onProjectIdChange={handleProjectIdChange}
+            onCreate={async (payload) => {
+              await handleCreate(payload);
+              setFilter((f) => ({
+                ...f,
+                status: "ALL",
+                query: "",
+                sort: "created-desc",
+              }));
+              setDuplicateSeed(null);
+            }}
+          />
+        </aside>
       </section>
+
+      <NextReminderPulse reminders={allReminders} connected={connected} />
 
       {toast.message && (
         <Toast

@@ -29,45 +29,38 @@ export const ReminderList = memo(function ReminderList({
   );
 
   const now = useNow(needsClock);
+  const hasScrollableList = connected && reminders.length > 0;
 
   return (
-    <section
-      className="panel panel--schedule reveal reveal-delay-3"
-      aria-labelledby="schedule-heading"
+    <div
+      className={`reminders-list${hasScrollableList ? " reminders-list--scrollable" : ""}`}
+      aria-live="polite"
     >
-      <div className="panel__schedule-head">
-        <p className="eyebrow">REMINDERS</p>
-        <h2 id="schedule-heading">Your Schedule</h2>
-      </div>
+      {listLoading && !hasLoadedOnce ? (
+        <div role="status" aria-busy="true">
+          <p className="sr-only">Loading reminders…</p>
+          <ReminderListSkeleton />
+        </div>
+      ) : null}
 
-      <div className="reminder-list-scroll">
-        {listLoading && !hasLoadedOnce ? (
-          <div role="status" aria-live="polite" aria-busy="true">
-            <p className="reminder-list__loading sr-only">Loading reminders…</p>
-            <ReminderListSkeleton />
-          </div>
-        ) : null}
+      {!connected && !connecting && !(listLoading && !hasLoadedOnce) ? (
+        <ScheduleLocked />
+      ) : null}
 
-        {!connected && !connecting && !(listLoading && !hasLoadedOnce) ? (
-          <ScheduleLocked />
-        ) : null}
+      {connected && !(listLoading && !hasLoadedOnce) && reminders.length === 0 ? (
+        <EmptyReminders filtered={filtered} />
+      ) : null}
 
-        <div className="reminder-list">
-          {connected &&
-          !(listLoading && !hasLoadedOnce) &&
-          reminders.length === 0 ? (
-            <EmptyReminders filtered={filtered} />
-          ) : null}
+      {connected && reminders.length > 0 ? (
+        <ul className="reminders-list__items">
+          {reminders.map((reminder) => {
+            const isPending = reminder.status === "PENDING";
+            const fireAt = new Date(reminder.fireAt).getTime();
+            const showCountdown = isPending && needsClock && fireAt > now;
 
-          {connected &&
-            reminders.map((reminder) => {
-              const isPending = reminder.status === "PENDING";
-              const fireAt = new Date(reminder.fireAt).getTime();
-              const showCountdown = isPending && needsClock && fireAt > now;
-
-              return (
+            return (
+              <li key={reminder.id}>
                 <ReminderCard
-                  key={reminder.id}
                   reminder={reminder}
                   countdownNow={showCountdown ? now : undefined}
                   actionLoading={actionLoading}
@@ -75,10 +68,11 @@ export const ReminderList = memo(function ReminderList({
                   onEdit={onEdit}
                   onDuplicate={onDuplicate}
                 />
-              );
-            })}
-        </div>
-      </div>
-    </section>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </div>
   );
 });

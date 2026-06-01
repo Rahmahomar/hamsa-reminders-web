@@ -70,3 +70,34 @@ export function dateToLocalValue(date: Date): string {
     date.getMinutes()
   );
 }
+
+export function toLocalDateInputValue(localDatetime: string): string {
+  if (!localDatetime) return "";
+  return localDatetime.slice(0, 10);
+}
+
+export function toLocalTimeInputValue(localDatetime: string): string {
+  if (!localDatetime) return "";
+  return localDatetime.length >= 16 ? localDatetime.slice(11, 16) : "";
+}
+
+export function mergeDateAndTime(date: string, time: string): string {
+  if (!date.trim() || !time.trim()) return "";
+  return `${date}T${time}`;
+}
+
+export function formatReminderSchedule(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+
+  const datePart = d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const timePart = d.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `${datePart} • ${timePart}`;
+}

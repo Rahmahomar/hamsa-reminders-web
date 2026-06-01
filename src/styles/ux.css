@@ -178,23 +178,7 @@ a:focus:not(:focus-visible) {
   }
 }
 
-/* ——— Nav active state ——— */
-.nav-links a[aria-current="page"] {
-  color: var(--night);
-  font-weight: 600;
-  position: relative;
-}
-
-.nav-links a[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -6px;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--primary);
-}
+/* Nav active state — see navbar.css (.navbar__link--active) */
 
 /* ——— Dashboard section labels ——— */
 .dashboard-section-label {

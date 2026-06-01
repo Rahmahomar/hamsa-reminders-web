@@ -11,7 +11,10 @@ import { SOCKET_URL } from "../environment";
 import type { CreateReminderPayload, Reminder } from "../types/reminder";
 import type { UpdateReminderPayload } from "../types/update-reminder-payload";
 import { computeReminderCounts } from "../utils/computeReminderCounts";
-import type { ReminderFilterState } from "../utils/filterReminders";
+import {
+  DEFAULT_REMINDER_FILTER,
+  type ReminderFilterState,
+} from "../utils/filterReminders";
 import { reminderQueryKey, hasActiveReminderFilters, canUseSingleFetch } from "../utils/reminderQueryParams";
 import { useDebounce } from "./useDebounce";
 import { isAbortError, isAuthError, isNotFoundError } from "../utils/apiError";
@@ -46,9 +49,11 @@ const POLL_INTERVAL_CONNECTED_MS = 120_000;
 const POLL_INTERVAL_DISCONNECTED_MS = 30_000;
 
 export function useReminders({ onToast, filter }: UseRemindersOptions) {
-  const savedOnMount = loadToken();
-  const [token, setTokenState] = useState(savedOnMount);
-  const [sessionToken, setSessionToken] = useState(savedOnMount);
+  const [token, setTokenState] = useState(() => loadToken());
+  const [sessionToken, setSessionToken] = useState("");
+  const [isRestoringSession, setIsRestoringSession] = useState(
+    () => loadToken().trim().length > 0
+  );
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [allReminders, setAllReminders] = useState<Reminder[]>([]);
   const [connected, setConnected] = useState(false);
@@ -187,6 +192,18 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
         setReminders([]);
         setListError(null);
 
+        if (isAuthError(err)) {
+          setConnected(false);
+          if (!silent) {
+            onToastRef.current("Session expired. Please sign in again.", "danger");
+          }
+          clearAuthStorage();
+          setSessionToken("");
+          setReminders([]);
+          setAllReminders([]);
+          return;
+        }
+
         if (!hasFilters && !silent) {
           onToastRef.current("Failed to fetch reminders", "danger");
         }
@@ -222,14 +239,37 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
 
   const setToken = useCallback((value: string) => {
     setTokenState(value);
-    saveToken(value);
   }, []);
+
+  /** Validates token with API; updates reminder state. Throws on auth/network failure. */
+  const establishSession = useCallback(
+    async (activeToken: string) => {
+      const trimmed = activeToken.trim();
+      if (!trimmed) {
+        throw new Error("Token is required");
+      }
+
+      const data = await getReminders(trimmed, {
+        filter: DEFAULT_REMINDER_FILTER,
+      });
+
+      trackStatusTransitions(data);
+      setReminders(data);
+      setAllReminders(data);
+      setConnected(true);
+      setHasLoadedOnce(true);
+      setListError(null);
+      return data;
+    },
+    [trackStatusTransitions]
+  );
 
   const logout = useCallback(() => {
     listAbortRef.current?.abort();
     clearAuthStorage();
     setTokenState("");
     setSessionToken("");
+    setIsRestoringSession(false);
     setConnected(false);
     setReminders([]);
     setAllReminders([]);
@@ -250,15 +290,28 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
     }
 
     setConnecting(true);
-    setSessionToken(trimmed);
-    saveToken(trimmed);
 
     try {
-      await refreshReminders({ tokenOverride: trimmed });
+      await establishSession(trimmed);
+      setSessionToken(trimmed);
+      saveToken(trimmed);
+    } catch (err: unknown) {
+      setSessionToken("");
+      setConnected(false);
+      setReminders([]);
+      setAllReminders([]);
+      setHasLoadedOnce(false);
+      clearAuthStorage();
+
+      if (isAuthError(err)) {
+        onToastRef.current("Invalid or expired token. Please try again.", "danger");
+      } else if (!isAbortError(err)) {
+        onToastRef.current("Could not sign in. Please try again.", "danger");
+      }
     } finally {
       setConnecting(false);
     }
-  }, [token, refreshReminders]);
+  }, [token, establishSession]);
 
   const handleCreate = useCallback(
     async (payload: CreateReminderPayload) => {
@@ -329,10 +382,28 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
     bootstrapDoneRef.current = true;
 
     const saved = loadToken().trim();
-    if (!saved) return;
+    if (!saved) {
+      setIsRestoringSession(false);
+      return;
+    }
 
-    setSessionToken(saved);
-  }, []);
+    void (async () => {
+      setConnecting(true);
+      try {
+        await establishSession(saved);
+        setSessionToken(saved);
+        setTokenState(saved);
+      } catch {
+        clearAuthStorage();
+        setSessionToken("");
+        setTokenState("");
+        setConnected(false);
+      } finally {
+        setConnecting(false);
+        setIsRestoringSession(false);
+      }
+    })();
+  }, [establishSession]);
 
   useEffect(() => {
     const activeToken = sessionToken.trim();
@@ -454,6 +525,7 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
   return {
     token,
     sessionToken,
+    isRestoringSession,
     setToken,
     logout,
     reminders,

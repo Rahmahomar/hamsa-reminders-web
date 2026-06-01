@@ -352,11 +352,12 @@ button:hover {
   margin-bottom: 20px;
 }
 
+/* Dashboard layout — see styles/dashboard.css */
 .dashboard {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: stretch;
+  gap: 20px;
+  align-items: start;
 }
 
 .dashboard > .panel {
@@ -411,7 +412,12 @@ textarea {
   resize: vertical;
 }
 
-button {
+/* Legacy panels only — dashboard/login use component button classes */
+.panel button,
+.token-card > button,
+.fired-modal button,
+.modalActions button,
+.error-boundary button {
   width: 100%;
   margin-top: 24px;
   border: none;
@@ -425,9 +431,18 @@ button {
   transition: 0.2s ease;
 }
 
-button:hover {
+.panel button:hover,
+.token-card > button:hover,
+.fired-modal button:hover,
+.modalActions .primary:hover,
+.error-boundary button:hover {
   background: var(--night);
   color: #fff;
+}
+
+.modalActions .secondary:hover {
+  background: #f3f5f7;
+  color: var(--night);
 }
 
 .panel--schedule {
@@ -481,16 +496,9 @@ button:hover {
   padding: 2px 0 4px;
 }
 
+/* Card layout — grid in styles/dashboard.css */
 .reminder-card {
   position: relative;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 255, 241, 0.96));
-  border-radius: 24px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 16px;
-  border: 1px solid rgba(151, 222, 0, 0.2);
   transition:
     transform 0.22s ease,
     box-shadow 0.22s ease,
@@ -707,149 +715,7 @@ button:hover {
   }
 }
 
-@container page (min-width: 720px) {
-  .dashboard {
-    --dashboard-panel-height: min(88vh, calc(100dvh - 200px));
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: 32px;
-    align-items: stretch;
-  }
-
-  .dashboard > .panel,
-  .dashboard > .dashboard__schedule {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: var(--dashboard-panel-height);
-    height: var(--dashboard-panel-height);
-    max-height: var(--dashboard-panel-height);
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .dashboard > form.panel {
-    overflow: hidden;
-  }
-
-  .dashboard__schedule .panel--schedule {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .panel__create-head {
-    flex-shrink: 0;
-  }
-
-  .panel__create-head h2 {
-    margin-bottom: 0;
-  }
-
-  .panel__create-body {
-    flex: 1;
-    min-height: 0;
-    margin-top: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding: 4px 8px 4px 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable;
-  }
-
-  .panel__create-body::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .panel__create-body::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .panel__create-body::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.12);
-    border-radius: 999px;
-  }
-
-  .panel__create-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.22);
-  }
-
-  .dashboard > form.panel button[type="submit"] {
-    margin-top: auto;
-    flex-shrink: 0;
-  }
-}
-
-@media (min-width: 901px) {
-  .dashboard {
-    --dashboard-panel-height: min(88vh, calc(100dvh - 200px));
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: 32px;
-    align-items: stretch;
-  }
-
-  .dashboard > .panel,
-  .dashboard > .dashboard__schedule {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: var(--dashboard-panel-height);
-    height: var(--dashboard-panel-height);
-    max-height: var(--dashboard-panel-height);
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .dashboard > form.panel {
-    overflow: hidden;
-  }
-
-  .dashboard__schedule .panel--schedule {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .panel__create-head {
-    flex-shrink: 0;
-  }
-
-  .panel__create-head h2 {
-    margin-bottom: 0;
-  }
-
-  .panel__create-body {
-    flex: 1;
-    min-height: 0;
-    margin-top: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding: 4px 8px 4px 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable;
-  }
-
-  .panel__create-body::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .panel__create-body::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .panel__create-body::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.12);
-    border-radius: 999px;
-  }
-
-  .panel__create-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.22);
-  }
-
-  .dashboard > form.panel button[type="submit"] {
-    margin-top: auto;
-    flex-shrink: 0;
-  }
-}
+/* Dashboard grid layout — see styles/dashboard.css + responsive.css */
 
 @media (min-width: 1024px) {
   .hero {
@@ -869,42 +735,6 @@ button:hover {
 @media (max-width: 900px) {
   .nav-links {
     display: none;
-  }
-
-  .navbar {
-    top: 12px;
-    margin-bottom: 32px;
-    padding: 10px 16px;
-    gap: 12px;
-  }
-
-  .dashboard {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    width: 100%;
-  }
-
-  .dashboard > .panel,
-  .dashboard > .dashboard__schedule {
-    width: 100%;
-    min-height: auto;
-    height: auto;
-    max-height: none;
-  }
-
-  .panel,
-  .token-card {
-    width: 100%;
-    padding: 20px 16px;
-    border-radius: var(--radius-lg);
-    min-width: 0;
-  }
-
-  .panel--schedule {
-    min-height: auto;
-    height: auto;
-    max-height: none;
   }
 
   .hero-actions {

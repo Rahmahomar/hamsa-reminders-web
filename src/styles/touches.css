@@ -207,6 +207,8 @@
 .reminder-card__countdown {
   display: inline-flex;
   align-items: center;
+  justify-content: start;
+  align-self: start;
   gap: 6px;
   margin-top: 10px;
   padding: 4px 10px;
@@ -227,10 +229,14 @@
 
 .reminder-card__progress {
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   bottom: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--primary), transparent);
+  background: linear-gradient(
+    to inline-end,
+    var(--primary),
+    transparent
+  );
   border-radius: 0 999px 0 0;
   transition: width 1s linear;
   pointer-events: none;

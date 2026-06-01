@@ -1,0 +1,284 @@
+/* App-wide responsive — load last */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: clip;
+}
+
+.page {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.page__content {
+  min-width: 0;
+}
+
+/* Legacy index.css panel height overrides — v2 list scroll uses dashboard.css */
+@container page (min-width: 720px) {
+  .dashboard > .panel,
+  .dashboard > .dashboard__schedule,
+  .dashboard > form.panel {
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+}
+
+/* ——— Dashboard: small screens — list then create form ——— */
+@media (max-width: 767px) {
+  #dashboard.dashboard {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dashboard__main {
+    order: 1;
+  }
+
+  .dashboard__sidebar {
+    order: 2;
+    position: static;
+  }
+
+  .create-sidebar {
+    padding: 16px 14px;
+  }
+
+  .reminders-list--scrollable .reminders-list__items {
+    max-height: min(48vh, calc(100dvh - 19rem));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  #dashboard.dashboard {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 34vw);
+    gap: 16px;
+  }
+}
+
+/* ——— Page header ——— */
+@media (max-width: 520px) {
+  .reminders-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reminders-header__new {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .reminders-header__subtitle {
+    font-size: 0.9375rem;
+  }
+}
+
+/* ——— Filters ——— */
+@media (max-width: 639px) {
+  .reminder-filters__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reminder-filters__search-wrap {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .reminder-filters__sort {
+    width: 100%;
+  }
+
+  .reminder-filters__sort-button {
+    width: 100%;
+    max-width: 100%;
+    padding: 11px 32px 11px 14px;
+    font-size: 0.75rem;
+  }
+
+  .reminder-filters__sort-menu {
+    left: 0;
+    right: 0;
+  }
+
+  .reminder-filters__tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .reminder-filters__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .reminder-filters__tab {
+    flex-shrink: 0;
+  }
+}
+
+/* ——— Reminder cards ——— */
+@media (max-width: 520px) {
+  article.reminder-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "icon content"
+      "aside aside";
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .reminder-card__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .reminder-card__icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .reminder-card__content h3 {
+    font-size: 0.9375rem;
+    overflow-wrap: anywhere;
+  }
+
+  .reminder-card__content p {
+    font-size: 0.8125rem;
+  }
+
+  .reminder-card__when {
+    font-size: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  article.reminder-card .reminder-card__aside {
+    grid-area: aside;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: end;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .reminder-card__duplicate span {
+    display: none;
+  }
+
+  .reminder-card__duplicate {
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  article.reminder-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "content"
+      "aside";
+  }
+
+  article.reminder-card .reminder-card__icon {
+    display: none;
+  }
+
+  .reminder-card__aside {
+    justify-content: space-between;
+  }
+}
+
+/* ——— Create form panel ——— */
+@media (max-width: 767px) {
+  .create-sidebar {
+    padding: 16px 12px;
+    border-radius: 14px;
+  }
+
+  .create-sidebar__footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .create-sidebar__cancel,
+  .create-sidebar__submit {
+    flex: 1 1 120px;
+    min-width: 0;
+    padding: 12px 10px;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-sidebar__head h2 {
+    font-size: 1.125rem;
+  }
+
+  .create-sidebar__fire-at .fire-at-picker__body {
+    max-height: min(45vh, 360px);
+  }
+}
+
+/* ——— Navbar ——— */
+@media (max-width: 767px) {
+  .page > .navbar.navbar--app {
+    margin-bottom: 18px;
+  }
+}
+
+/* ——— Next pulse & toasts ——— */
+@media (max-width: 767px) {
+  .dashboard + .next-pulse {
+    margin-top: 16px;
+  }
+}
+
+/* ——— Page padding scale ——— */
+@media (max-width: 479px) {
+  :root {
+    --container-pad: 16px;
+  }
+
+  .page {
+    padding-top: max(16px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .page > .navbar.navbar--app {
+    margin-bottom: 14px;
+    border-radius: 12px;
+  }
+
+  #dashboard.dashboard {
+    gap: 18px;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+  :root {
+    --container-pad: 20px;
+  }
+}
+
+/* Touch-friendly controls */
+@media (hover: none) and (pointer: coarse) {
+  .reminder-filters__tab,
+  .reminder-card__duplicate,
+  .reminder-card__menu-btn,
+  .reminders-header__new,
+  .create-sidebar__submit,
+  .create-sidebar__cancel,
+  .navbar--app .navbar__logout,
+  .navbar--app .navbar__link {
+    min-height: 44px;
+  }
+
+  .reminder-card__menu-btn {
+    min-width: 44px;
+  }
+}
