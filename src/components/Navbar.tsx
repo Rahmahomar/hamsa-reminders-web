@@ -2,6 +2,7 @@ import { CONSOLE_URL } from "../environment";
 import type { NavbarProps } from "../types/navbar";
 import { HamsaLogo } from "./HamsaLogo";
 import { NavIcon } from "./NavIcon";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar({ onLogout }: NavbarProps) {
   return (
@@ -43,6 +44,8 @@ export function Navbar({ onLogout }: NavbarProps) {
               <span>Console</span>
             </a>
           </nav>
+
+          <ThemeToggle className="theme-toggle--compact" />
 
           {onLogout ? (
             <button

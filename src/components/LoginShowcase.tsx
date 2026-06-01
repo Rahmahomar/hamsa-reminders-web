@@ -10,6 +10,7 @@ import {
   useLoginSlideImages,
 } from "../hooks/useLoginSlideImages";
 import { LoginShowcaseSlideImage } from "./LoginShowcaseSlideImage";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function LoginShowcase() {
   const slides = LOGIN_SHOWCASE_SLIDES;
@@ -133,6 +134,10 @@ export function LoginShowcase() {
       }}
     >
       <div className="login-showcase__backdrop" />
+
+      <div className="login-showcase__theme">
+        <ThemeToggle className="theme-toggle--compact" />
+      </div>
 
       {slides.length > 1 ? (
         <div className="login-showcase__dots" role="tablist" aria-label="Preview slides">

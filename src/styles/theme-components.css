@@ -1,0 +1,368 @@
+/* Component styles wired to theme tokens */
+
+.page {
+  background-image: radial-gradient(circle at 18% 10%, var(--page-accent-a), transparent 24%),
+    radial-gradient(circle at 85% 0%, var(--page-accent-b), transparent 16%);
+}
+
+.page-background {
+  background-color: #e8f0f9;
+  background-color: var(--background);
+}
+
+.page-background__mesh {
+  background-image: radial-gradient(circle at 1px 1px, var(--mesh-dot) 1px, transparent 0);
+}
+
+/* Navbar */
+.page > .navbar.navbar--app {
+  background: var(--navbar-bg);
+  border-color: var(--navbar-border);
+  box-shadow: var(--shadow-card);
+}
+
+.navbar--app .navbar__link {
+  color: var(--navbar-link);
+}
+
+.navbar--app .navbar__link:hover {
+  color: var(--text);
+  background: var(--navbar-link-hover-bg);
+}
+
+.navbar--app .navbar__link--active {
+  color: var(--navbar-link-active);
+  background: rgba(151, 222, 0, 0.1);
+}
+
+.navbar--app .navbar__logout {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+  color: var(--text);
+}
+
+.navbar--app .navbar__logout:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-subtle);
+  color: var(--text);
+}
+
+/* Inputs */
+input,
+textarea,
+select {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 2px var(--input-focus-ring);
+}
+
+/* Reminder cards */
+article.reminder-card {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: var(--shadow-card);
+}
+
+article.reminder-card:hover {
+  border-color: var(--card-hover-border);
+  box-shadow: var(--shadow);
+}
+
+.reminder-card__duplicate,
+.reminder-card__menu-btn {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+  color: var(--text);
+}
+
+.reminder-card__duplicate:hover,
+.reminder-card__menu-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.reminder-card__menu,
+.reminder-card__menu--floating {
+  background: var(--menu-bg);
+  border-color: var(--menu-border);
+  box-shadow: var(--menu-shadow);
+}
+
+.reminder-card__menu button {
+  color: var(--text);
+}
+
+.reminder-card__menu button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.reminder-card__menu-danger {
+  color: var(--danger) !important;
+}
+
+.reminder-card__status--pending {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.reminder-card__status--fired {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.reminder-card__status--cancelled {
+  background: var(--cancelled-bg);
+  color: var(--cancelled-text);
+}
+
+/* Filters */
+.reminder-filters__tab {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+  color: var(--muted);
+}
+
+.reminder-filters__tab:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.reminder-filters__tab--active {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.reminder-filters__search {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+.reminder-filters__sort-button {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.reminder-filters__sort-button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.reminder-filters__sort-menu {
+  background: var(--menu-bg);
+  border-color: var(--border-strong);
+  box-shadow: var(--menu-shadow);
+}
+
+.reminder-filters__sort-option {
+  color: var(--text);
+}
+
+.reminder-filters__sort-option:hover {
+  background: rgba(151, 222, 0, 0.12);
+  color: var(--primary);
+}
+
+/* Create sidebar */
+.create-sidebar {
+  background: var(--card-bg-soft);
+  border-color: var(--card-border);
+}
+
+.create-sidebar__field input,
+.create-sidebar__field textarea {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+.create-sidebar__cancel {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+  color: var(--text);
+}
+
+.create-sidebar__cancel:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* Fire at picker */
+.fire-at-picker {
+  background: var(--surface-elevated);
+  border-color: var(--border-strong);
+}
+
+.fire-at-picker__preset,
+.fire-at-picker__nav {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+  color: var(--text);
+}
+
+.fire-at-picker__calendar {
+  background: var(--surface-muted);
+  border-color: var(--border);
+}
+
+/* Modals & dialogs */
+.modalContent,
+.confirm-dialog,
+.auth-restoring__card {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.modalHeader h2,
+.confirm-dialog h2 {
+  color: var(--text);
+}
+
+.modalForm,
+.confirm-dialog p {
+  color: var(--muted);
+}
+
+/* Toast */
+.toast {
+  background: var(--surface-elevated);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Login — all text follows theme */
+.login-page,
+.login-page__form-column,
+.login-showcase {
+  color: var(--login-text);
+}
+
+.login-page__form-column {
+  background: var(--login-bg);
+}
+
+.login-showcase {
+  background: var(--login-panel);
+}
+
+.login-showcase__backdrop {
+  background: var(--login-panel);
+}
+
+.login-page__description,
+.login-page__help,
+.login-page__legal {
+  color: var(--login-muted);
+}
+
+.login-page__label,
+.login-page__input,
+.login-page__help a,
+.login-page__legal a,
+.login-showcase__title,
+.auth-logo,
+.login-page__brand-mark {
+  color: var(--login-text);
+}
+
+.login-page__input::placeholder {
+  color: var(--login-muted-fg);
+}
+
+.login-page__input {
+  background: var(--login-input-bg);
+  border-color: var(--login-border);
+}
+
+.login-showcase__desc {
+  color: var(--login-muted);
+}
+
+.login-showcase__mockup-outer,
+.login-showcase__mockup-inner {
+  background: var(--login-mockup-surface);
+}
+
+.login-showcase__mockup-screen {
+  background: var(--login-mockup-bg);
+}
+
+/* Dashboard & global text in dark mode */
+[data-theme="dark"] body,
+[data-theme="dark"] .page,
+[data-theme="dark"] .page__content {
+  color: var(--text);
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3 {
+  color: var(--text);
+}
+
+[data-theme="dark"] .reminders-header__title,
+[data-theme="dark"] .reminder-card__content h3,
+[data-theme="dark"] .reminder-card__content p,
+[data-theme="dark"] .reminder-card__content bdi,
+[data-theme="dark"] .create-sidebar__head h2,
+[data-theme="dark"] .create-sidebar__field label {
+  color: var(--text);
+}
+
+[data-theme="dark"] .reminders-header__subtitle,
+[data-theme="dark"] .reminder-card__when,
+[data-theme="dark"] .create-sidebar__subtitle {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .theme-toggle {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+/* Auth restoring */
+.auth-restoring {
+  background: var(--login-bg);
+}
+
+.auth-restoring__card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.auth-restoring__text {
+  color: var(--muted);
+}
+
+/* Scrollbars */
+.reminders-list__items::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+}
+
+/* Notification banner */
+.notification-banner {
+  background: var(--surface-glass);
+  border-color: var(--border-strong);
+}
+
+.notification-banner p {
+  color: var(--text);
+}

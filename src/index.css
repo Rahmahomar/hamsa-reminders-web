@@ -1,4 +1,6 @@
 @import "./styles/fonts.css";
+@import "./styles/theme.css";
+@import "./styles/theme-components.css";
 @import "./styles/background.css";
 @import "./styles/touches.css";
 
@@ -9,23 +11,6 @@
 }
 
 :root {
-  --background: radial-gradient(circle at top left, rgba(151, 222, 0, 0.24), transparent 20%),
-    radial-gradient(circle at 78% 0%, rgba(210, 141, 255, 0.22), transparent 18%),
-    #e8f0f9;
-  --surface: rgba(255, 255, 255, 0.97);
-  --text: #111111;
-  --muted: #5f6975;
-  --night: #070707;
-  --primary: #97de00;
-  --primary-dark: #6aa000;
-  --primary-foreground: #000000;
-  --accent: #d28dff;
-  --accent-soft: rgba(210, 141, 255, 0.2);
-  --surface-glass: rgba(255, 255, 255, 0.78);
-  --border: rgba(255, 255, 255, 0.86);
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 24px 80px rgba(0, 0, 0, 0.10);
-  --shadow-xl: 0 36px 120px rgba(0, 0, 0, 0.14);
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 18px;

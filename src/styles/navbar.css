@@ -9,10 +9,10 @@
   position: sticky;
   top: max(12px, env(safe-area-inset-top, 0px));
   z-index: 100;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--navbar-bg);
+  border: 1px solid var(--navbar-border);
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-card);
   backdrop-filter: none;
   min-height: 0;
   overflow: visible;
