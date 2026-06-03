@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslation } from "../context/LocaleContext";
+import {
+  FireAtTimeDropdown,
+  type FireAtTimeOption,
+} from "./FireAtTimeDropdown";
 import {
   buildLocalDatetimeValue,
   dateToLocalValue,
@@ -8,7 +13,7 @@ import {
 } from "../utils/datetimeLocal";
 import { getCalendarDays, isSameDay } from "../utils/fireAtCalendar";
 import "../styles/fire-at-picker.css";
-import { WEEKDAYS } from "../types/fire-at-picker";
+import { WEEKDAY_KEYS } from "../types/fire-at-picker";
 import type { FireAtPickerProps, Preset } from "../types/fire-at-picker";
 
 export function FireAtPicker({
@@ -18,9 +23,14 @@ export function FireAtPicker({
   minDate = new Date(),
   defaultExpanded = false,
 }: FireAtPickerProps) {
+  const { locale } = useLocale();
+  const t = useTranslation();
   const selected = parseLocalDatetimeValue(value);
   const today = useMemo(() => new Date(), []);
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const [openTimeDropdown, setOpenTimeDropdown] = useState<"hour" | "minute" | null>(
+    null
+  );
 
   useEffect(() => {
     if (error) setExpanded(true);
@@ -80,9 +90,14 @@ export function FireAtPicker({
     nextMonday.setHours(9, 0, 0, 0);
 
     return [
-      { label: "In 15 min", resolve: () => roundToNextMinutes(now, 15) },
       {
-        label: "In 1 hour",
+        id: "in15Min",
+        labelKey: "fireAt.presets.in15Min",
+        resolve: () => roundToNextMinutes(now, 15),
+      },
+      {
+        id: "in1Hour",
+        labelKey: "fireAt.presets.in1Hour",
         resolve: () => {
           const d = new Date(now);
           d.setHours(d.getHours() + 1);
@@ -90,21 +105,30 @@ export function FireAtPicker({
         },
       },
       {
-        label: "In 3 hours",
+        id: "in3Hours",
+        labelKey: "fireAt.presets.in3Hours",
         resolve: () => {
           const d = new Date(now);
           d.setHours(d.getHours() + 3);
           return roundToNextMinutes(d, 5);
         },
       },
-      { label: "Tomorrow 9 AM", resolve: () => tomorrow9 },
-      { label: "Next Monday", resolve: () => nextMonday },
+      {
+        id: "tomorrow9Am",
+        labelKey: "fireAt.presets.tomorrow9Am",
+        resolve: () => tomorrow9,
+      },
+      {
+        id: "nextMonday",
+        labelKey: "fireAt.presets.nextMonday",
+        resolve: () => nextMonday,
+      },
     ];
   }, []);
 
   const calendarDays = getCalendarDays(viewMonth.year, viewMonth.month);
   const monthLabel = new Date(viewMonth.year, viewMonth.month, 1).toLocaleString(
-    undefined,
+    locale,
     { month: "long", year: "numeric" }
   );
 
@@ -116,7 +140,26 @@ export function FireAtPicker({
     return candidate < floor;
   };
 
-  const hourOptions = Array.from({ length: 24 }, (_, h) => h);
+  const hourOptions: FireAtTimeOption[] = useMemo(
+    () =>
+      Array.from({ length: 24 }, (_, h) => ({
+        value: h,
+        label: new Date(2000, 0, 1, h).toLocaleTimeString(locale, {
+          hour: "numeric",
+          hour12: true,
+        }),
+      })),
+    [locale]
+  );
+
+  const minuteSelectOptions: FireAtTimeOption[] = useMemo(
+    () =>
+      minuteOptions.map((m) => ({
+        value: m,
+        label: String(m).padStart(2, "0"),
+      })),
+    [minuteOptions]
+  );
 
   const applyPreset = (resolve: () => Date) => {
     onChange(dateToLocalValue(resolve()));
@@ -144,9 +187,9 @@ export function FireAtPicker({
           ⏱
         </span>
         <div className="fire-at-picker__preview">
-          <span className="fire-at-picker__preview-label">Fire at</span>
+          <span className="fire-at-picker__preview-label">{t("fireAt.label")}</span>
           <strong className="fire-at-picker__preview-value">
-            {formatFireAtPreview(value)}
+            {formatFireAtPreview(value, t("fireAt.previewChoose"), locale)}
           </strong>
         </div>
         <span className="fire-at-picker__chevron" aria-hidden />
@@ -158,15 +201,19 @@ export function FireAtPicker({
         hidden={!expanded}
       >
         <div className="fire-at-picker__body-inner">
-      <div className="fire-at-picker__presets" role="group" aria-label="Quick times">
+      <div
+        className="fire-at-picker__presets"
+        role="group"
+        aria-label={t("fireAt.quickTimes")}
+      >
         {presets.map((preset) => (
           <button
-            key={preset.label}
+            key={preset.id}
             type="button"
             className="fire-at-picker__preset"
             onClick={() => applyPreset(preset.resolve)}
           >
-            {preset.label}
+            {t(preset.labelKey)}
           </button>
         ))}
       </div>
@@ -176,7 +223,7 @@ export function FireAtPicker({
           <button
             type="button"
             className="fire-at-picker__nav"
-            aria-label="Previous month"
+            aria-label={t("fireAt.previousMonth")}
             onClick={() =>
               setViewMonth((m) => {
                 const d = new Date(m.year, m.month - 1, 1);
@@ -190,7 +237,7 @@ export function FireAtPicker({
           <button
             type="button"
             className="fire-at-picker__nav"
-            aria-label="Next month"
+            aria-label={t("fireAt.nextMonth")}
             onClick={() =>
               setViewMonth((m) => {
                 const d = new Date(m.year, m.month + 1, 1);
@@ -203,8 +250,8 @@ export function FireAtPicker({
         </div>
 
         <div className="fire-at-picker__weekdays">
-          {WEEKDAYS.map((d) => (
-            <span key={d}>{d}</span>
+          {WEEKDAY_KEYS.map((key) => (
+            <span key={key}>{t(key)}</span>
           ))}
         </div>
 
@@ -246,36 +293,25 @@ export function FireAtPicker({
       </div>
 
       <div className="fire-at-picker__time">
-        <span className="fire-at-picker__time-label">Time</span>
+        <span className="fire-at-picker__time-label">{t("fireAt.time")}</span>
         <div className="fire-at-picker__time-inputs">
-          <select
-            className="fire-at-picker__select"
+          <FireAtTimeDropdown
             value={parts.hours}
-            onChange={(e) => updateParts({ hours: Number(e.target.value) })}
-            aria-label="Hour"
-          >
-            {hourOptions.map((h) => (
-              <option key={h} value={h}>
-                {new Date(2000, 0, 1, h).toLocaleTimeString(undefined, {
-                  hour: "numeric",
-                  hour12: true,
-                })}
-              </option>
-            ))}
-          </select>
+            options={hourOptions}
+            onChange={(hours) => updateParts({ hours })}
+            ariaLabel={t("fireAt.hour")}
+            isOpen={openTimeDropdown === "hour"}
+            onOpenChange={(open) => setOpenTimeDropdown(open ? "hour" : null)}
+          />
           <span className="fire-at-picker__time-sep">:</span>
-          <select
-            className="fire-at-picker__select"
+          <FireAtTimeDropdown
             value={parts.minutes}
-            onChange={(e) => updateParts({ minutes: Number(e.target.value) })}
-            aria-label="Minute"
-          >
-            {minuteOptions.map((m) => (
-              <option key={m} value={m}>
-                {String(m).padStart(2, "0")}
-              </option>
-            ))}
-          </select>
+            options={minuteSelectOptions}
+            onChange={(minutes) => updateParts({ minutes })}
+            ariaLabel={t("fireAt.minute")}
+            isOpen={openTimeDropdown === "minute"}
+            onOpenChange={(open) => setOpenTimeDropdown(open ? "minute" : null)}
+          />
         </div>
       </div>
         </div>

@@ -15,6 +15,8 @@ export function computeReminderCardMenuPosition(
   const rect = anchor.getBoundingClientRect();
   const menuWidth = Math.max(menu.offsetWidth, MENU_MIN_WIDTH);
   const menuHeight = menu.offsetHeight;
+  const isRtl =
+    typeof document !== "undefined" && document.documentElement.dir === "rtl";
 
   let top = rect.bottom + MENU_GAP;
   if (top + menuHeight > window.innerHeight - VIEWPORT_PAD) {
@@ -22,7 +24,7 @@ export function computeReminderCardMenuPosition(
   }
   top = Math.max(VIEWPORT_PAD, top);
 
-  let left = rect.right - menuWidth;
+  let left = isRtl ? rect.left : rect.right - menuWidth;
   left = Math.max(
     VIEWPORT_PAD,
     Math.min(left, window.innerWidth - menuWidth - VIEWPORT_PAD)

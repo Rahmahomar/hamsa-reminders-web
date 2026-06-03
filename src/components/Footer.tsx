@@ -4,10 +4,12 @@ import {
   FOOTER_NAV_LEGAL,
   FOOTER_NAV_PRIMARY,
 } from "../constants/footer";
+import { useTranslation } from "../context/LocaleContext";
 import { HamsaLogo } from "./HamsaLogo";
 import "../styles/footer.css";
 
 export function Footer() {
+  const t = useTranslation();
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: FormEvent) => {
@@ -25,27 +27,27 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="site-footer__logo-link"
-              aria-label="Hamsa — visit tryhamsa.com"
+              aria-label={t("footer.logoAria")}
             >
               <HamsaLogo className="site-footer__logo" />
             </a>
           </div>
 
-          <nav className="site-footer__nav" aria-label="Footer">
+          <nav className="site-footer__nav" aria-label={t("footer.navAria")}>
             <ul className="site-footer__links">
               {FOOTER_NAV_PRIMARY.map((item) => (
-                <li key={item.label}>
+                <li key={item.labelKey}>
                   <a href={item.href} target="_blank" rel="noopener noreferrer">
-                    {item.label}
+                    {t(item.labelKey)}
                   </a>
                 </li>
               ))}
             </ul>
             <ul className="site-footer__links">
               {FOOTER_NAV_LEGAL.map((item) => (
-                <li key={item.label}>
+                <li key={item.labelKey}>
                   <a href={item.href} target="_blank" rel="noopener noreferrer">
-                    {item.label}
+                    {t(item.labelKey)}
                   </a>
                 </li>
               ))}
@@ -53,30 +55,28 @@ export function Footer() {
           </nav>
 
           <div className="site-footer__newsletter">
-            <p className="site-footer__newsletter-title">
-              Get News &amp; New Products Updates
-            </p>
+            <p className="site-footer__newsletter-title">{t("footer.newsletterTitle")}</p>
             <form className="site-footer__subscribe" onSubmit={handleSubscribe}>
               <label className="visually-hidden" htmlFor="footer-email">
-                Email address
+                {t("footer.emailLabel")}
               </label>
               <input
                 id="footer-email"
                 type="email"
                 name="email"
-                placeholder="Enter your email"
+                placeholder={t("footer.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
               />
-              <button type="submit">Subscribe</button>
+              <button type="submit">{t("footer.subscribe")}</button>
             </form>
           </div>
         </div>
 
         <div className="site-footer__bottom">
           <p className="site-footer__copyright">
-            &copy; Copyright {COPYRIGHT_YEAR}
+            {t("footer.copyright", { year: COPYRIGHT_YEAR })}
           </p>
         </div>
       </div>

@@ -1,4 +1,12 @@
-export const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+export const WEEKDAY_KEYS = [
+  "fireAt.weekdays.su",
+  "fireAt.weekdays.mo",
+  "fireAt.weekdays.tu",
+  "fireAt.weekdays.we",
+  "fireAt.weekdays.th",
+  "fireAt.weekdays.fr",
+  "fireAt.weekdays.sa",
+] as const;
 
 export type FireAtPickerProps = {
   value: string;
@@ -9,6 +17,7 @@ export type FireAtPickerProps = {
 };
 
 export type Preset = {
-  label: string;
+  id: string;
+  labelKey: string;
   resolve: () => Date;
 };

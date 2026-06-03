@@ -1,10 +1,14 @@
 import { useEffect } from "react";
+import { useLocale, useTranslation } from "../context/LocaleContext";
 import type { FiredReminderOverlayProps } from "../types/fired-reminder-overlay";
 
 export function FiredReminderOverlay({
   reminder,
   onClose,
 }: FiredReminderOverlayProps) {
+  const { locale } = useLocale();
+  const t = useTranslation();
+
   useEffect(() => {
     if (!reminder) return;
     const prev = document.body.style.overflow;
@@ -25,17 +29,15 @@ export function FiredReminderOverlay({
       <div className="fired-modal">
         <div className="fired-icon">🔔</div>
 
-        <p className="eyebrow">REMINDER FIRED</p>
+        <p className="eyebrow">{t("firedOverlay.eyebrow")}</p>
 
         <h2>{reminder.title}</h2>
 
-        <p>{reminder.body || "Your reminder time has arrived."}</p>
+        <p>{reminder.body || t("firedOverlay.bodyFallback")}</p>
 
-        <small>
-          {new Date(reminder.fireAt).toLocaleString()}
-        </small>
+        <small>{new Date(reminder.fireAt).toLocaleString(locale)}</small>
 
-        <button onClick={onClose}>Got it</button>
+        <button onClick={onClose}>{t("firedOverlay.dismiss")}</button>
       </div>
     </div>
   );

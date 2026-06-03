@@ -1,14 +1,17 @@
 import type { ReminderFilterState, ReminderSort } from "../utils/filterReminders";
 
-export const STATUS_OPTIONS: { value: ReminderFilterState["status"]; label: string }[] = [
-  { value: "ALL", label: "All" },
-  { value: "PENDING", label: "Pending" },
-  { value: "FIRED", label: "Fired" },
-  { value: "CANCELLED", label: "Cancelled" },
+export const STATUS_OPTIONS: {
+  value: ReminderFilterState["status"];
+  labelKey: string;
+}[] = [
+  { value: "ALL", labelKey: "reminderFilters.status.all" },
+  { value: "PENDING", labelKey: "reminderFilters.status.pending" },
+  { value: "FIRED", labelKey: "reminderFilters.status.fired" },
+  { value: "CANCELLED", labelKey: "reminderFilters.status.cancelled" },
 ];
 
-export const SORT_OPTIONS: { value: ReminderSort; label: string }[] = [
-  { value: "created-desc", label: "Newest first" },
-  { value: "fireAt-asc", label: "Soonest to fire" },
-  { value: "fireAt-desc", label: "Latest to fire" },
+export const SORT_OPTIONS: { value: ReminderSort; labelKey: string }[] = [
+  { value: "created-desc", labelKey: "reminderFilters.sort.newestFirst" },
+  { value: "fireAt-asc", labelKey: "reminderFilters.sort.soonestToFire" },
+  { value: "fireAt-desc", labelKey: "reminderFilters.sort.latestToFire" },
 ];

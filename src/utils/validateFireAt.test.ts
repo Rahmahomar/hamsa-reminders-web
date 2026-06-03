@@ -4,7 +4,7 @@ import { buildLocalDatetimeValue } from "./datetimeLocal";
 
 describe("validateFutureFireAt", () => {
   it("rejects empty value", () => {
-    expect(validateFutureFireAt("")).toBe("Fire At is required");
+    expect(validateFutureFireAt("")).toBe("fireAt.error.required");
   });
 
   it("rejects past datetime", () => {
@@ -16,7 +16,7 @@ describe("validateFutureFireAt", () => {
       past.getHours(),
       past.getMinutes()
     );
-    expect(validateFutureFireAt(local)).toBe("Fire At must be in the future");
+    expect(validateFutureFireAt(local)).toBe("fireAt.error.mustBeFuture");
   });
 
   it("accepts future datetime", () => {

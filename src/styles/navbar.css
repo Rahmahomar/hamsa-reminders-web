@@ -51,9 +51,17 @@
   flex-wrap: nowrap;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
+  margin-inline-start: auto;
   min-width: 0;
   flex: 1 1 auto;
+}
+
+.navbar--app .navbar__actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .navbar--app .navbar__links {
@@ -190,12 +198,19 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      "brand logout"
+      "brand actions"
       "links links";
     align-items: center;
     gap: 10px 8px;
     padding: 10px 12px;
     min-height: auto;
+  }
+
+  .navbar--app .navbar__actions {
+    grid-area: actions;
+    gap: 6px;
+    justify-self: end;
+    max-width: 100%;
   }
 
   .navbar--app .navbar__brand {
@@ -226,10 +241,6 @@
     scrollbar-width: none;
   }
 
-  .navbar--app .navbar__logout {
-    grid-area: logout;
-    justify-self: end;
-  }
 }
 
 @media (max-width: 480px) {

@@ -9,13 +9,8 @@ import {
 } from "react";
 
 import type { Theme } from "../constants/theme";
+import type { ThemeContextValue } from "../types/theme-context";
 import { applyTheme, loadTheme, saveTheme } from "../utils/theme";
-
-type ThemeContextValue = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
-};
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 

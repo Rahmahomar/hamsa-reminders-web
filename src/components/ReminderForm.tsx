@@ -1,8 +1,9 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
-import { FireAtPicker } from "./FireAtPicker";
+import { useLocale, useTranslation } from "../context/LocaleContext";
+import type { ReminderFormProps } from "../types/reminder-form";
 import { parseLocalDatetimeValue } from "../utils/datetimeLocal";
 import { validateFutureFireAt } from "../utils/validateFireAt";
-import type { ReminderFormProps } from "../types/reminder-form";
+import { FireAtPicker } from "./FireAtPicker";
 
 function resetFormFields() {
   return {
@@ -23,6 +24,8 @@ export function ReminderForm({
   onProjectIdChange,
   onCreate,
 }: ReminderFormProps) {
+  const { locale } = useLocale();
+  const t = useTranslation();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [projectId, setProjectId] = useState(initialProjectId);
@@ -36,13 +39,13 @@ export function ReminderForm({
 
   useEffect(() => {
     if (!duplicateSeed) return;
-    setTitle(duplicateSeed.title);
+    setTitle(`${duplicateSeed.sourceTitle} ${t("common.copySuffix")}`);
     setBody(duplicateSeed.body);
     setProjectId(duplicateSeed.projectId);
     setFireAt("");
     setFireAtError("");
     setError("");
-  }, [duplicateSeed]);
+  }, [duplicateSeed, locale, t]);
 
   const clearForm = useCallback(() => {
     const cleared = resetFormFields();
@@ -64,19 +67,19 @@ export function ReminderForm({
 
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      setError("Title is required");
+      setError("reminderForm.error.titleRequired");
       return;
     }
 
     const trimmedProjectId = projectId.trim();
     if (!trimmedProjectId) {
-      setError("Project ID is required");
+      setError("reminderForm.error.projectIdRequired");
       return;
     }
 
     const trimmedBody = body.trim();
     if (!trimmedBody) {
-      setError("Body is required");
+      setError("reminderForm.error.bodyRequired");
       return;
     }
 
@@ -108,26 +111,20 @@ export function ReminderForm({
     >
       <header className="create-sidebar__head">
         <div>
-          <h2 id="create-sidebar-title">Create Reminder</h2>
-          <p className="create-sidebar__subtitle">
-            Add a new reminder to your schedule.
-          </p>
+          <h2 id="create-sidebar-title">{t("reminderForm.title")}</h2>
+          <p className="create-sidebar__subtitle">{t("reminderForm.subtitle")}</p>
         </div>
-        <button
-          type="button"
-          className="create-sidebar__clear"
-          onClick={clearForm}
-        >
-          Clear
+        <button type="button" className="create-sidebar__clear" onClick={clearForm}>
+          {t("reminderForm.clear")}
         </button>
       </header>
 
       <div className="create-sidebar__body">
         <div className="create-sidebar__field">
-          <label htmlFor="reminder-title">Title</label>
+          <label htmlFor="reminder-title">{t("reminderForm.fieldTitle")}</label>
           <input
             id="reminder-title"
-            placeholder="Enter reminder title"
+            placeholder={t("reminderForm.titlePlaceholder")}
             value={title}
             onChange={(e) => {
               setTitle(e.target.value);
@@ -135,41 +132,41 @@ export function ReminderForm({
             }}
             disabled={loading}
           />
-          {error === "Title is required" && (
+          {error === "reminderForm.error.titleRequired" && (
             <p className="create-sidebar__error" role="alert">
-              {error}
+              {t(error)}
             </p>
           )}
         </div>
 
         <div className="create-sidebar__field">
-          <label htmlFor="reminder-body">Body</label>
+          <label htmlFor="reminder-body">{t("reminderForm.fieldBody")}</label>
           <textarea
             id="reminder-body"
-            placeholder="Enter reminder details..."
+            placeholder={t("reminderForm.bodyPlaceholder")}
             value={body}
             onChange={(e) => {
               setBody(e.target.value);
-              if (error === "Body is required") setError("");
+              if (error === "reminderForm.error.bodyRequired") setError("");
             }}
             disabled={loading}
           />
-          {error === "Body is required" && (
-            <p className="create-sidebar__error">{error}</p>
+          {error === "reminderForm.error.bodyRequired" && (
+            <p className="create-sidebar__error">{t(error)}</p>
           )}
         </div>
 
         <div className="create-sidebar__field">
-          <label htmlFor="project-id">Project ID</label>
+          <label htmlFor="project-id">{t("reminderForm.fieldProjectId")}</label>
           <input
             id="project-id"
             list="project-id-options"
             value={projectId}
             onChange={(e) => {
               handleProjectChange(e.target.value);
-              if (error === "Project ID is required") setError("");
+              if (error === "reminderForm.error.projectIdRequired") setError("");
             }}
-            placeholder="Enter project ID"
+            placeholder={t("reminderForm.projectIdPlaceholder")}
             disabled={loading}
           />
           <datalist id="project-id-options">
@@ -177,8 +174,8 @@ export function ReminderForm({
               <option key={id} value={id} />
             ))}
           </datalist>
-          {error === "Project ID is required" && (
-            <p className="create-sidebar__error">{error}</p>
+          {error === "reminderForm.error.projectIdRequired" && (
+            <p className="create-sidebar__error">{t(error)}</p>
           )}
         </div>
 
@@ -189,7 +186,7 @@ export function ReminderForm({
               setFireAt(next);
               if (fireAtError) setFireAtError("");
             }}
-            error={fireAtError}
+            error={fireAtError ? t(fireAtError) : undefined}
             defaultExpanded
           />
         </div>
@@ -202,10 +199,10 @@ export function ReminderForm({
           disabled={loading}
           onClick={clearForm}
         >
-          Cancel
+          {t("reminderForm.cancel")}
         </button>
         <button type="submit" className="create-sidebar__submit" disabled={loading}>
-          {loading ? "Creating…" : "Create Reminder"}
+          {loading ? t("reminderForm.creating") : t("reminderForm.submit")}
         </button>
       </footer>
     </form>

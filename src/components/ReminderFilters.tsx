@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SORT_OPTIONS, STATUS_OPTIONS } from "../constants/reminder-filters";
-import type { ReminderFilterState, ReminderSort } from "../utils/filterReminders";
+import { useTranslation } from "../context/LocaleContext";
 import type { ReminderFiltersProps } from "../types/reminder-filters";
+import type { ReminderFilterState, ReminderSort } from "../utils/filterReminders";
 
 function countForStatus(
   status: ReminderFilterState["status"],
@@ -20,30 +21,37 @@ function countForStatus(
 }
 
 export function ReminderFilters({ filter, counts, onChange }: ReminderFiltersProps) {
+  const t = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-  const sortLabel =
-    SORT_OPTIONS.find((o) => o.value === filter.sort)?.label ?? "Newest first";
+  const activeSort = SORT_OPTIONS.find((o) => o.value === filter.sort);
+  const sortLabel = activeSort
+    ? t(activeSort.labelKey)
+    : t("reminderFilters.sort.newestFirst");
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         sortDropdownRef.current &&
         !sortDropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
-    }
+    };
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   return (
     <div className="reminder-filters">
-      <div className="reminder-filters__tabs" role="tablist" aria-label="Filter by status">
+      <div
+        className="reminder-filters__tabs"
+        role="tablist"
+        aria-label={t("reminderFilters.filterByStatus")}
+      >
         {STATUS_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -53,7 +61,7 @@ export function ReminderFilters({ filter, counts, onChange }: ReminderFiltersPro
             className={`reminder-filters__tab${filter.status === opt.value ? " reminder-filters__tab--active" : ""}`}
             onClick={() => onChange({ ...filter, status: opt.value })}
           >
-            {opt.label} {countForStatus(opt.value, counts)}
+            {t(opt.labelKey)} {countForStatus(opt.value, counts)}
           </button>
         ))}
       </div>
@@ -79,24 +87,21 @@ export function ReminderFilters({ filter, counts, onChange }: ReminderFiltersPro
           <input
             type="search"
             className="reminder-filters__search"
-            placeholder="Search reminders..."
+            placeholder={t("reminderFilters.searchPlaceholder")}
             value={filter.query}
             onChange={(e) => onChange({ ...filter, query: e.target.value })}
-            aria-label="Search reminders"
+            aria-label={t("reminderFilters.searchAria")}
           />
         </div>
 
-        <div
-          className="reminder-filters__sort"
-          ref={sortDropdownRef}
-        >
-          <span className="reminder-filters__sort-label">Sort:</span>
+        <div className="reminder-filters__sort" ref={sortDropdownRef}>
           <button
-            className={`reminder-filters__sort-button${isOpen ? " reminder-filters__sort-button--open" : ""}`}
-            onClick={() => setIsOpen(!isOpen)}
-            aria-expanded={isOpen}
-            aria-label={`Sort reminders, currently ${sortLabel}`}
             type="button"
+            className={`reminder-filters__sort-button${isOpen ? " reminder-filters__sort-button--open" : ""}`}
+            onClick={() => setIsOpen((open) => !open)}
+            aria-expanded={isOpen}
+            aria-haspopup="listbox"
+            aria-label={t("reminderFilters.sortAria", { sort: sortLabel })}
           >
             {sortLabel}
             <svg
@@ -107,18 +112,17 @@ export function ReminderFilters({ filter, counts, onChange }: ReminderFiltersPro
               fill="none"
               aria-hidden
             >
-              <path
-                d="M1 1l5 5 5-5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
+              <path d="M1 1l5 5 5-5" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
-          {isOpen && (
-            <div className="reminder-filters__sort-menu">
+          {isOpen ? (
+            <div className="reminder-filters__sort-menu" role="listbox">
               {SORT_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
+                  type="button"
+                  role="option"
+                  aria-selected={filter.sort === opt.value}
                   className={`reminder-filters__sort-option${
                     filter.sort === opt.value
                       ? " reminder-filters__sort-option--selected"
@@ -128,13 +132,12 @@ export function ReminderFilters({ filter, counts, onChange }: ReminderFiltersPro
                     onChange({ ...filter, sort: opt.value as ReminderSort });
                     setIsOpen(false);
                   }}
-                  type="button"
                 >
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </button>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

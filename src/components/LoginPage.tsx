@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 
+import { useTranslation } from "../context/LocaleContext";
 import { CONSOLE_URL } from "../environment";
 import type { LoginPageProps } from "../types/login-page";
 import { HamsaAuthLogo } from "./HamsaAuthLogo";
@@ -13,6 +14,8 @@ export function LoginPage({
   onTokenChange,
   onConnect,
 }: LoginPageProps) {
+  const t = useTranslation();
+
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     if (!connecting && token.trim()) {
@@ -30,7 +33,7 @@ export function LoginPage({
             <div className="login-page__brand-block">
               <HamsaAuthLogo className="login-page__brand-mark" />
               <p id="login-form-title" className="login-page__description">
-                Welcome back! Access your reminders workspace and continue scheduling.
+                {t("login.description")}
               </p>
             </div>
 
@@ -38,13 +41,13 @@ export function LoginPage({
               <div className="login-page__fields">
                 <div className="login-page__field">
                   <label htmlFor="jwt-token" className="login-page__label">
-                    Access token
+                    {t("login.accessToken")}
                   </label>
                   <input
                     id="jwt-token"
                     type="text"
                     className="login-page__input"
-                    placeholder="Enter your access token"
+                    placeholder={t("login.accessTokenPlaceholder")}
                     value={token}
                     onChange={(event) => onTokenChange(event.target.value)}
                     disabled={connecting}
@@ -60,32 +63,32 @@ export function LoginPage({
                   className="login-page__submit"
                   disabled={connecting || !token.trim()}
                 >
-                  {connecting ? "Signing in…" : "Sign in"}
+                  {connecting ? t("login.signingIn") : t("login.signIn")}
                 </button>
 
                 <p className="login-page__help">
-                  Need a token?{" "}
+                  {t("login.needToken")}{" "}
                   <a href={CONSOLE_URL} target="_blank" rel="noopener noreferrer">
-                    Open Hamsa Console
+                    {t("login.openConsole")}
                   </a>
                 </p>
 
                 <p className="login-page__legal">
-                  By clicking continue, you agree to our{" "}
+                  {t("login.legalPrefix")}{" "}
                   <a
                     href="https://tryhamsa.com/terms-and-services/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Terms of Service
+                    {t("login.termsOfService")}
                   </a>{" "}
-                  and{" "}
+                  {t("login.legalAnd")}{" "}
                   <a
                     href="https://tryhamsa.com/privacy-policy/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Privacy Policy
+                    {t("login.privacyPolicy")}
                   </a>
                   .
                 </p>

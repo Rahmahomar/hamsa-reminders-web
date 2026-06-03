@@ -1,0 +1,65 @@
+/* Language switch — same layout as theme toggle */
+
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 0;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-button);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.language-toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  transform: none;
+}
+
+.language-toggle__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.language-toggle__track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--toggle-track);
+  transition: background 0.2s ease;
+}
+
+.language-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--toggle-thumb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.language-toggle--ar .language-toggle__thumb {
+  transform: translateX(16px);
+}
+
+.language-toggle__label {
+  white-space: nowrap;
+}

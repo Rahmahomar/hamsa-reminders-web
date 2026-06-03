@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "../context/LocaleContext";
 import type {
   EditReminderModalPayload,
   EditReminderModalProps,
 } from "../types/edit-reminder-modal";
-import { FireAtPicker } from "./FireAtPicker";
 import {
   localDatetimeInputValueToISO,
   toLocalDatetimeInputValue,
 } from "../utils/datetimeLocal";
 import { validateFutureFireAt } from "../utils/validateFireAt";
+import { FireAtPicker } from "./FireAtPicker";
 
 export function EditReminderModal({
   reminder,
   onClose,
   onSave,
 }: EditReminderModalProps) {
+  const t = useTranslation();
   const [title, setTitle] = useState(reminder.title ?? "");
   const [body, setBody] = useState((reminder.body as string | undefined) ?? "");
   const [fireAtLocal, setFireAtLocal] = useState(
@@ -63,14 +65,14 @@ export function EditReminderModal({
     let valid = true;
 
     if (!trimmedTitle) {
-      setTitleError("Title is required");
+      setTitleError("editReminder.error.titleRequired");
       valid = false;
     } else {
       setTitleError("");
     }
 
     if (!trimmedBody) {
-      setBodyError("Body is required");
+      setBodyError("editReminder.error.bodyRequired");
       valid = false;
     } else {
       setBodyError("");
@@ -112,46 +114,51 @@ export function EditReminderModal({
     >
       <div className="modalContent edit-modal">
         <div className="modalHeader">
-          <h2>Edit Reminder</h2>
-          <button type="button" className="modalClose" onClick={onClose}>
+          <h2>{t("editReminder.title")}</h2>
+          <button
+            type="button"
+            className="modalClose"
+            onClick={onClose}
+            aria-label={t("editReminder.close")}
+          >
             ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modalForm edit-modal-form" noValidate>
           <label className="field">
-            <span>Title</span>
+            <span>{t("editReminder.fieldTitle")}</span>
             <input
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
                 if (titleError) setTitleError("");
               }}
-              placeholder="Reminder title"
+              placeholder={t("editReminder.titlePlaceholder")}
               aria-invalid={titleError ? true : undefined}
             />
             {titleError ? (
               <p className="message message--error" role="alert">
-                {titleError}
+                {t(titleError)}
               </p>
             ) : null}
           </label>
 
           <label className="field">
-            <span>Body</span>
+            <span>{t("editReminder.fieldBody")}</span>
             <textarea
               value={body}
               onChange={(e) => {
                 setBody(e.target.value);
                 if (bodyError) setBodyError("");
               }}
-              placeholder="Reminder body"
+              placeholder={t("editReminder.bodyPlaceholder")}
               rows={3}
               aria-invalid={bodyError ? true : undefined}
             />
             {bodyError ? (
               <p className="message message--error" role="alert">
-                {bodyError}
+                {t(bodyError)}
               </p>
             ) : null}
           </label>
@@ -163,16 +170,16 @@ export function EditReminderModal({
                 setFireAtLocal(next);
                 if (fireAtError) setFireAtError("");
               }}
-              error={fireAtError}
+              error={fireAtError ? t(fireAtError) : undefined}
             />
           </div>
 
           <div className="modalActions">
             <button type="button" className="secondary" onClick={onClose}>
-              Cancel
+              {t("common.cancel")}
             </button>
             <button type="submit" className="primary">
-              Save
+              {t("editReminder.save")}
             </button>
           </div>
         </form>

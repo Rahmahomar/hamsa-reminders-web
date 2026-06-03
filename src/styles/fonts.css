@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Baloo:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap");
 
 :root {
   --font-display: "Baloo", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
+}
+
+[dir="rtl"] {
+  --font-display: "Noto Sans Arabic", "Baloo", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Noto Sans Arabic", "Baloo 2", ui-sans-serif, system-ui, sans-serif;
 }

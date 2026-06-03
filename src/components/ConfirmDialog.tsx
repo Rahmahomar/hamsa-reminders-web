@@ -1,16 +1,21 @@
 import { useEffect } from "react";
+import { useTranslation } from "../context/LocaleContext";
 import type { ConfirmDialogProps } from "../types/confirm-dialog";
 import "../styles/confirm.css";
 
 export function ConfirmDialog({
   title,
   message,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   loading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const t = useTranslation();
+  const resolvedConfirm = confirmLabel ?? t("common.confirm");
+  const resolvedCancel = cancelLabel ?? t("common.cancel");
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !loading) onCancel();
@@ -39,7 +44,7 @@ export function ConfirmDialog({
             disabled={loading}
             onClick={onCancel}
           >
-            {cancelLabel}
+            {resolvedCancel}
           </button>
           <button
             type="button"
@@ -47,7 +52,7 @@ export function ConfirmDialog({
             disabled={loading}
             onClick={onConfirm}
           >
-            {loading ? "Please wait…" : confirmLabel}
+            {loading ? t("common.pleaseWait") : resolvedConfirm}
           </button>
         </div>
       </div>

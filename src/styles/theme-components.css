@@ -170,7 +170,12 @@ article.reminder-card:hover {
 }
 
 .reminder-filters__sort-option:hover {
-  background: rgba(151, 222, 0, 0.12);
+  background: var(--surface-hover);
+  color: var(--primary);
+}
+
+.reminder-filters__sort-option--selected {
+  background: var(--accent-soft);
   color: var(--primary);
 }
 
@@ -214,6 +219,15 @@ article.reminder-card:hover {
 .fire-at-picker__calendar {
   background: var(--surface-muted);
   border-color: var(--border);
+}
+
+.fire-at-picker__time {
+  background: var(--surface-muted);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .fire-at-picker__chevron::after {
+  border-color: var(--text);
 }
 
 /* Modals & dialogs */
@@ -366,3 +380,42 @@ article.reminder-card:hover {
 .notification-banner p {
   color: var(--text);
 }
+
+/* RTL */
+[dir="rtl"] body {
+  letter-spacing: 0;
+}
+
+[dir="rtl"] .fire-at-picker__chevron {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .reminder-card__content,
+[dir="rtl"] .create-sidebar__field label,
+[dir="rtl"] .reminders-header__text,
+[dir="rtl"] .empty-state,
+[dir="rtl"] .modalContent,
+[dir="rtl"] .confirm-dialog {
+  text-align: start;
+}
+
+[dir="rtl"] .reminder-card {
+  direction: rtl;
+}
+
+[dir="rtl"] .reminder-filters__toolbar,
+[dir="rtl"] .reminder-filters__tabs,
+[dir="rtl"] .navbar__inner,
+[dir="rtl"] .navbar__end {
+  direction: rtl;
+}
+
+[dir="rtl"] .next-pulse {
+  direction: rtl;
+}
+
+[dir="rtl"] .login-page__legal,
+[dir="rtl"] .login-page__help {
+  text-align: start;
+}
+

@@ -60,20 +60,41 @@ body {
   }
 }
 
-/* ——— Page header ——— */
-@media (max-width: 520px) {
+/* ——— Page header: full “new reminder” button on small screens only ——— */
+@media (min-width: 768px) {
+  .reminders-header__new {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
   .reminders-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 14px;
+  }
+
+  .reminders-header__title {
+    font-size: clamp(1.375rem, 5vw, 1.75rem);
   }
 
   .reminders-header__new {
+    display: inline-flex;
     width: 100%;
+    min-height: 44px;
+    padding: 12px 20px;
     justify-content: center;
+    gap: 8px;
   }
 
+  .reminders-header__new-label {
+    display: inline;
+  }
+}
+
+@media (max-width: 520px) {
   .reminders-header__subtitle {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
   }
 }
 
@@ -98,11 +119,6 @@ body {
     max-width: 100%;
     padding: 11px 32px 11px 14px;
     font-size: 0.75rem;
-  }
-
-  .reminder-filters__sort-menu {
-    left: 0;
-    right: 0;
   }
 
   .reminder-filters__tabs {
@@ -274,8 +290,11 @@ body {
   .create-sidebar__submit,
   .create-sidebar__cancel,
   .navbar--app .navbar__logout,
-  .navbar--app .navbar__link {
+  .navbar--app .navbar__link,
+  .theme-toggle--compact,
+  .language-toggle--compact {
     min-height: 44px;
+    min-width: 44px;
   }
 
   .reminder-card__menu-btn {

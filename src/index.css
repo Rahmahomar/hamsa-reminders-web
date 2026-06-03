@@ -1,6 +1,7 @@
 @import "./styles/fonts.css";
 @import "./styles/theme.css";
 @import "./styles/theme-components.css";
+@import "./styles/language-toggle.css";
 @import "./styles/background.css";
 @import "./styles/touches.css";
 
@@ -15,6 +16,7 @@
   --radius-lg: 24px;
   --radius-md: 18px;
   --radius-nav: 14px;
+  --radius-button: 10px;
   --container-max: 1440px;
   --container-pad: 16px;
 }
@@ -96,7 +98,7 @@ body {
   margin: 0;
   padding: 0.35rem 0.9rem;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   background: transparent;
   color: var(--night);
   font-size: 0.9375rem;
@@ -279,7 +281,7 @@ button:hover {
 .secondary-btn {
   border: none;
   outline: none;
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   padding: 12px 24px;
   font-family: var(--font-body);
   font-size: 0.9375rem;
@@ -406,7 +408,7 @@ textarea {
   width: 100%;
   margin-top: 24px;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   background: var(--primary);
   color: var(--primary-foreground);
   padding: 14px 24px;

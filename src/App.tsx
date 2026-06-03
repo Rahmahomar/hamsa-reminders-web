@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Layout } from "./components/Layout";
 import { AuthRestoringScreen } from "./components/AuthRestoringScreen";
@@ -20,7 +20,9 @@ import "./styles/dashboard.css";
 import "./styles/navbar.css";
 import "./styles/responsive.css";
 import "./styles/ux.css";
+import "./styles/buttons.css";
 
+import { useLocale } from "./context/LocaleContext";
 import { useReminders } from "./hooks/useReminders";
 import { usePageTitle } from "./hooks/usePageTitle";
 import { useToast } from "./hooks/useToast";
@@ -37,6 +39,7 @@ import {
 const NOTIFICATION_DISMISS_KEY = "hamsa_notification_banner_dismissed";
 
 function App() {
+  const { locale, t } = useLocale();
   const toast = useToast();
   const onToast = useCallback(
     (message: string, tone: "success" | "danger" | "info") => {
@@ -79,7 +82,7 @@ function App() {
     handleCreate,
     handleCancel,
     handleUpdate,
-  } = useReminders({ onToast, filter });
+  } = useReminders({ onToast, filter, t });
 
   const showNotificationBanner =
     !bannerDismissed &&
@@ -92,6 +95,10 @@ function App() {
 
   usePageTitle(connected, counts.pending);
 
+  useEffect(() => {
+    toast.clear();
+  }, [locale, toast.clear]);
+
   const handleProjectIdChange = useCallback((id: string) => {
     setProjectId(id);
     saveProjectId(id);
@@ -103,7 +110,7 @@ function App() {
     saveProjectId(reminder.projectId);
     setProjectIds(loadProjectIds());
     setDuplicateSeed({
-      title: `${reminder.title} (copy)`,
+      sourceTitle: reminder.title,
       body: reminder.body ?? "",
       projectId: reminder.projectId,
     });
@@ -111,8 +118,8 @@ function App() {
       .getElementById("create-reminder-sidebar")
       ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     document.getElementById("reminder-title")?.focus();
-    toast.show("Form prefilled — pick a new Fire At time", "info");
-  }, [toast.show]);
+    toast.show(t("toast.duplicatePrefill"), "info");
+  }, [t, toast.show]);
 
   const focusCreateForm = useCallback(() => {
     document
@@ -188,9 +195,9 @@ function App() {
 
       {cancelTargetId && (
         <ConfirmDialog
-          title="Cancel reminder?"
-          message="This reminder will be marked as cancelled and will not fire."
-          confirmLabel="Cancel reminder"
+          title={t("confirm.cancelReminderTitle")}
+          message={t("confirm.cancelReminderMessage")}
+          confirmLabel={t("confirm.cancelReminderConfirm")}
           loading={actionLoading}
           onConfirm={handleConfirmCancel}
           onCancel={() => setCancelTargetId(null)}
@@ -232,7 +239,7 @@ function App() {
           />
         </div>
 
-        <aside className="dashboard__sidebar" aria-label="Create reminder">
+        <aside className="dashboard__sidebar" aria-label={t("dashboard.createAria")}>
           <ReminderForm
             celebrate={celebrate}
             loading={actionLoading}

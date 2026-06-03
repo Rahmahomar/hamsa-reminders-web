@@ -4,9 +4,10 @@
   gap: 8px;
   width: auto;
   margin: 0;
-  padding: 6px 10px;
+  min-height: 40px;
+  padding: 9px 16px;
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: var(--radius-button);
   background: var(--surface);
   color: var(--text);
   font-family: var(--font-body);
@@ -22,6 +23,14 @@
   background: var(--surface-hover);
   color: var(--text);
   transform: none;
+}
+
+.theme-toggle__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
 }
 
 .theme-toggle__track {
@@ -51,14 +60,4 @@
 
 .theme-toggle__label {
   white-space: nowrap;
-}
-
-@media (max-width: 480px) {
-  .theme-toggle--compact .theme-toggle__label {
-    display: none;
-  }
-
-  .theme-toggle--compact {
-    padding: 8px;
-  }
 }

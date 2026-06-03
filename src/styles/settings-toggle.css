@@ -1,0 +1,35 @@
+/* Shared layout for language + theme toggles */
+
+.settings-toggle__row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Small screens: icon-only (compact class on navbar / login header) */
+@media (max-width: 767px) {
+  .language-toggle--compact,
+  .theme-toggle--compact {
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  .language-toggle--compact .settings-toggle__row,
+  .theme-toggle--compact .settings-toggle__row {
+    gap: 0;
+  }
+
+  .language-toggle--compact .language-toggle__track,
+  .language-toggle--compact .language-toggle__label,
+  .theme-toggle--compact .theme-toggle__track,
+  .theme-toggle--compact .theme-toggle__label {
+    display: none;
+  }
+
+  .language-toggle--compact .language-toggle__icon,
+  .theme-toggle--compact .theme-toggle__icon {
+    color: var(--text);
+  }
+}

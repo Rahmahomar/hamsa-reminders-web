@@ -1,19 +1,23 @@
 import { useEffect } from "react";
 
-const BASE_TITLE = "Hamsa Reminder";
+import { useTranslation } from "../context/LocaleContext";
 
 export function usePageTitle(connected: boolean, pendingCount: number) {
+  const t = useTranslation();
+
   useEffect(() => {
+    const base = t("common.hamsaReminder");
+
     if (!connected) {
-      document.title = `${BASE_TITLE} — Connect to get started`;
+      document.title = `${base} — ${t("pageTitle.connect")}`;
       return;
     }
 
     if (pendingCount > 0) {
-      document.title = `${BASE_TITLE} — ${pendingCount} pending`;
+      document.title = `${base} — ${t("pageTitle.pending", { count: pendingCount })}`;
       return;
     }
 
-    document.title = `${BASE_TITLE} — Your schedule`;
-  }, [connected, pendingCount]);
+    document.title = `${base} — ${t("pageTitle.schedule")}`;
+  }, [connected, pendingCount, t]);
 }

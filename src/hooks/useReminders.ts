@@ -19,6 +19,7 @@ import { reminderQueryKey, hasActiveReminderFilters, canUseSingleFetch } from ".
 import { useDebounce } from "./useDebounce";
 import { isAbortError, isAuthError, isNotFoundError } from "../utils/apiError";
 import { playNotificationSound } from "../utils/notificationSound";
+import type { TranslateFn } from "../utils/i18n";
 import {
   clearAuthStorage,
   loadToken,
@@ -28,6 +29,7 @@ import {
 type UseRemindersOptions = {
   onToast: (message: string, tone: "success" | "danger" | "info") => void;
   filter: ReminderFilterState;
+  t: TranslateFn;
 };
 
 type LoadRemindersOptions = {
@@ -48,7 +50,7 @@ type ReminderFiredEvent = {
 const POLL_INTERVAL_CONNECTED_MS = 120_000;
 const POLL_INTERVAL_DISCONNECTED_MS = 30_000;
 
-export function useReminders({ onToast, filter }: UseRemindersOptions) {
+export function useReminders({ onToast, filter, t }: UseRemindersOptions) {
   const [token, setTokenState] = useState(() => loadToken());
   const [sessionToken, setSessionToken] = useState("");
   const [isRestoringSession, setIsRestoringSession] = useState(
@@ -84,6 +86,9 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
   const onToastRef = useRef(onToast);
   onToastRef.current = onToast;
 
+  const tRef = useRef(t);
+  tRef.current = t;
+
   const knownFiredIdsRef = useRef<Set<string>>(new Set());
   const previousStatusesRef = useRef<Map<string, string>>(new Map());
   const bootstrapDoneRef = useRef(false);
@@ -102,13 +107,16 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
     playNotificationSound();
 
     if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Reminder fired", {
+      new Notification(tRef.current("notification.reminderFiredTitle"), {
         body: reminder.title,
       });
     }
 
     setFiredReminder(reminder);
-    onToastRef.current(`Reminder fired: ${reminder.title}`, "success");
+    onToastRef.current(
+      tRef.current("toast.reminderFired", { title: reminder.title }),
+      "success"
+    );
   }, []);
 
   const trackStatusTransitions = useCallback((data: Reminder[]) => {
@@ -195,7 +203,7 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
         if (isAuthError(err)) {
           setConnected(false);
           if (!silent) {
-            onToastRef.current("Session expired. Please sign in again.", "danger");
+            onToastRef.current(tRef.current("toast.sessionExpired"), "danger");
           }
           clearAuthStorage();
           setSessionToken("");
@@ -205,7 +213,7 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
         }
 
         if (!hasFilters && !silent) {
-          onToastRef.current("Failed to fetch reminders", "danger");
+          onToastRef.current(tRef.current("toast.fetchFailed"), "danger");
         }
       } finally {
         if (!controller.signal.aborted && !silent) {
@@ -275,13 +283,13 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
     setAllReminders([]);
     setHasLoadedOnce(false);
     setListError(null);
-    onToastRef.current("Logged out", "info");
+    onToastRef.current(tRef.current("toast.loggedOut"), "info");
   }, []);
 
   const handleConnect = useCallback(async () => {
     const trimmed = token.trim();
     if (!trimmed) {
-      onToastRef.current("Please add JWT token first", "danger");
+      onToastRef.current(tRef.current("toast.tokenRequired"), "danger");
       return;
     }
 
@@ -304,9 +312,9 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
       clearAuthStorage();
 
       if (isAuthError(err)) {
-        onToastRef.current("Invalid or expired token. Please try again.", "danger");
+        onToastRef.current(tRef.current("toast.invalidToken"), "danger");
       } else if (!isAbortError(err)) {
-        onToastRef.current("Could not sign in. Please try again.", "danger");
+        onToastRef.current(tRef.current("toast.signInFailed"), "danger");
       }
     } finally {
       setConnecting(false);
@@ -316,7 +324,7 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
   const handleCreate = useCallback(
     async (payload: CreateReminderPayload) => {
       if (!sessionToken.trim()) {
-        onToastRef.current("Please add JWT token first", "danger");
+        onToastRef.current(tRef.current("toast.tokenRequired"), "danger");
         return;
       }
 
@@ -324,14 +332,14 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
       try {
         await createReminder(sessionToken, payload);
 
-        onToastRef.current("Reminder created successfully", "success");
+        onToastRef.current(tRef.current("toast.created"), "success");
         setCelebrate(true);
         window.setTimeout(() => setCelebrate(false), 700);
         await refreshReminders({ silent: true });
       } catch (err: unknown) {
         const msg =
           (err as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message ?? "Create failed";
+            ?.data?.message ?? tRef.current("toast.createFailed");
         onToastRef.current(msg, "danger");
       } finally {
         setActionLoading(false);
@@ -345,10 +353,10 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
       setActionLoading(true);
       try {
         await cancelReminder(sessionToken, id);
-        onToastRef.current("Reminder cancelled", "success");
+        onToastRef.current(tRef.current("toast.cancelled"), "success");
         await refreshReminders({ silent: true });
       } catch {
-        onToastRef.current("Cancel failed", "danger");
+        onToastRef.current(tRef.current("toast.cancelFailed"), "danger");
       } finally {
         setActionLoading(false);
       }
@@ -361,13 +369,13 @@ export function useReminders({ onToast, filter }: UseRemindersOptions) {
       setActionLoading(true);
       try {
         await updateReminder(sessionToken, id, payload);
-        onToastRef.current("Reminder updated successfully", "success");
+        onToastRef.current(tRef.current("toast.updated"), "success");
         await refreshReminders({ silent: true });
         return true;
       } catch (err: unknown) {
         const msg =
           (err as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message ?? "Update failed";
+            ?.data?.message ?? tRef.current("toast.updateFailed");
         onToastRef.current(msg, "danger");
         return false;
       } finally {

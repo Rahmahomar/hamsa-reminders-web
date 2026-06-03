@@ -45,7 +45,7 @@
   width: auto;
   margin: 0;
   padding: 10px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: white;
 }

@@ -1,7 +1,7 @@
 import type { CreateReminderPayload } from "./reminder";
 
 export type ReminderDuplicateSeed = {
-  title: string;
+  sourceTitle: string;
   body: string;
   projectId: string;
 };

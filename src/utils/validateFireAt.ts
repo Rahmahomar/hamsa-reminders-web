@@ -1,17 +1,22 @@
 import { parseLocalDatetimeValue } from "./datetimeLocal";
 
-export function validateFutureFireAt(localValue: string): string | null {
+export type FireAtErrorKey =
+  | "fireAt.error.required"
+  | "fireAt.error.invalid"
+  | "fireAt.error.mustBeFuture";
+
+export function validateFutureFireAt(localValue: string): FireAtErrorKey | null {
   if (!localValue.trim()) {
-    return "Fire At is required";
+    return "fireAt.error.required";
   }
 
   const date = parseLocalDatetimeValue(localValue);
   if (!date) {
-    return "Fire At is invalid";
+    return "fireAt.error.invalid";
   }
 
   if (date.getTime() <= Date.now()) {
-    return "Fire At must be in the future";
+    return "fireAt.error.mustBeFuture";
   }
 
   return null;

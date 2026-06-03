@@ -31,13 +31,20 @@
   <script>
     (function () {
       try {
-        var t = localStorage.getItem("hamsa_reminders_theme");
+        var theme = localStorage.getItem("hamsa_reminders_theme");
         document.documentElement.setAttribute(
           "data-theme",
-          t === "dark" ? "dark" : "light"
+          theme === "dark" ? "dark" : "light"
         );
+        var locale = localStorage.getItem("hamsa_reminders_locale");
+        var lang = locale === "ar" ? "ar" : "en";
+        document.documentElement.setAttribute("lang", lang);
+        document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+        document.documentElement.dataset.locale = lang;
       } catch (e) {
         document.documentElement.setAttribute("data-theme", "light");
+        document.documentElement.setAttribute("lang", "en");
+        document.documentElement.setAttribute("dir", "ltr");
       }
     })();
   </script>

@@ -3,7 +3,7 @@
 .login-page {
   --login-primary: hsl(79.2 99.88% 43.55%);
   --login-primary-fg: var(--primary-foreground);
-  --login-radius: 0.5rem;
+  --login-radius: var(--radius-button);
 
   position: fixed;
   inset: 0;
@@ -43,8 +43,42 @@
   padding: 1rem 1.5rem;
 }
 
-.login-page__header-theme {
+.login-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .login-page__header-inner {
+    padding: 0.75rem 1rem;
+    gap: 8px;
+  }
+
+  .login-page__header-actions {
+    gap: 6px;
+  }
+}
+
+.login-page__header-theme {
+  margin-inline-start: 0;
+}
+
+/* Arabic on login: toggles on the left, label/switch order reversed inside each button */
+[dir="rtl"] .login-page__header-inner {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .login-page__header-actions {
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .login-page .settings-toggle__row {
+  flex-direction: row-reverse;
 }
 
 .login-page__header-brand {
@@ -221,8 +255,19 @@
   .login-showcase__theme {
     position: absolute;
     top: 1.75rem;
-    inset-inline-end: 1.5rem;
+    right: 1.5rem;
+    left: auto;
     z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Arabic: toggles top-left of panel, slider stays on the right half of the page */
+  [dir="rtl"] .login-showcase__theme {
+    right: auto;
+    left: 1.5rem;
+    flex-direction: row-reverse;
   }
 
   .login-page__shell {
@@ -252,7 +297,10 @@
     height: 100dvh;
     overflow: hidden;
     background: var(--login-panel);
-    padding: 1.75rem 0 0 3rem;
+    padding-top: 1.75rem;
+    padding-inline-start: 3rem;
+    /* Carousel + dots: physical LTR; Arabic copy sets dir on .login-showcase__copy */
+    direction: ltr;
   }
 
   .login-showcase__backdrop {
@@ -264,21 +312,32 @@
   .login-showcase__dots {
     position: absolute;
     top: 2rem;
-    inset-inline-start: 3rem;
-    z-index: 3;
+    left: 3rem;
+    right: auto;
+    z-index: 5;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    pointer-events: auto;
+  }
+
+  /* Arabic: toggles left, pagination right (no overlap) */
+  [dir="rtl"] .login-showcase__dots {
+    left: auto;
+    right: 3rem;
   }
 
   .login-showcase__dot {
     position: relative;
+    flex-shrink: 0;
     width: 0.5rem;
     height: 0.5rem;
+    min-width: 0.5rem;
+    min-height: 0.5rem;
     padding: 0;
     border: none;
     border-radius: 999px;
-    background: rgba(151, 222, 0, 0.4);
+    background: rgba(151, 222, 0, 0.55);
     cursor: pointer;
     transition: all 0.3s ease-out;
   }
@@ -290,8 +349,17 @@
 
   .login-showcase__dot--active {
     width: 2rem;
-    background: var(--login-primary);
+    min-width: 2rem;
+    background: var(--login-primary, var(--primary));
     box-shadow: 0 4px 12px rgba(151, 222, 0, 0.35);
+  }
+
+  [data-theme="dark"] .login-showcase__dot {
+    background: rgba(151, 222, 0, 0.45);
+  }
+
+  [data-theme="dark"] .login-showcase__dot--active {
+    background: var(--primary);
   }
 
   .login-showcase__dot--active::after {
@@ -319,7 +387,7 @@
     height: 100%;
     overflow: hidden;
     cursor: grab;
-    touch-action: pan-y;
+    touch-action: none;
     user-select: none;
   }
 
@@ -329,7 +397,10 @@
 
   .login-showcase__track {
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     height: 100%;
+    min-width: 0;
     transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
     will-change: transform;
   }
@@ -340,35 +411,83 @@
 
   .login-showcase__slide {
     flex: 0 0 100%;
+    flex-shrink: 0;
     display: flex;
     min-width: 0;
+    width: 100%;
     height: 100%;
     flex-direction: column;
     justify-content: flex-start;
     gap: 1rem;
     padding-top: 4rem;
     padding-bottom: 0;
-    padding-inline-end: 0;
+    overflow: hidden;
+    isolation: isolate;
   }
 
   .login-showcase__copy {
     flex-shrink: 0;
+    width: 100%;
     max-width: 36rem;
-    padding-inline-end: 1.5rem;
     text-align: start;
+  }
+
+  /* Showcase panel is direction:ltr — use physical sides for Arabic copy */
+  .login-showcase__copy--ltr {
+    direction: ltr;
+    margin-right: auto;
+    margin-left: 0;
+    padding-right: 1.5rem;
+    padding-left: 0;
+    text-align: left;
+  }
+
+  .login-showcase__copy--rtl {
+    direction: rtl;
+    margin-left: auto;
+    margin-right: 0;
+    padding-right: 1.5rem;
+    padding-left: 0;
+    text-align: right;
   }
 
   .login-showcase__title {
     margin: 0;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
     max-width: 36rem;
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 2;
     color: var(--login-text);
+  }
+
+  .login-showcase__copy--ltr .login-showcase__title,
+  .login-showcase__copy--ltr .login-showcase__desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .login-showcase__copy--ltr .login-showcase__title {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .login-showcase__copy--ltr .login-showcase__desc {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  /* -webkit-box-orient:vertical breaks Arabic shaping — use block layout */
+  .login-showcase__copy--rtl .login-showcase__title,
+  .login-showcase__copy--rtl .login-showcase__desc {
+    display: block;
+    overflow: hidden;
+    text-align: right;
+    unicode-bidi: plaintext;
+  }
+
+  .login-showcase__copy--rtl .login-showcase__title {
+    max-height: 4em;
   }
 
   @media (min-width: 1280px) {
@@ -379,15 +498,16 @@
 
   .login-showcase__desc {
     margin: 0.5rem 0 0;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    overflow: hidden;
     max-width: 36rem;
     min-height: 4.8rem;
     font-size: 1rem;
     line-height: 1.625;
     color: var(--login-muted);
+  }
+
+  .login-showcase__copy--rtl .login-showcase__desc {
+    max-height: calc(1.625em * 3);
+    min-height: 0;
   }
 
   @media (min-width: 1280px) {
@@ -403,19 +523,21 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    align-items: stretch;
     min-height: 0;
+    width: 100%;
     margin-top: auto;
+    overflow: hidden;
   }
 
   .login-showcase__mockup-outer {
     position: relative;
     flex: 1 1 auto;
     width: calc(100% + 4rem);
+    max-width: none;
     min-height: 0;
     height: 100%;
-    max-height: none;
-    margin-inline-end: -4rem;
-    margin-bottom: 0;
+    margin: 0 -4rem 0 0;
     border-radius: 1.68rem 0 0 0;
     background: var(--login-mockup-surface);
     padding: 3.5px 0 0 3.5px;
@@ -442,18 +564,45 @@
     box-shadow: inset 0 0 0 1px var(--login-border);
   }
 
-  .login-showcase__image {
+  /* Arabic: bleed left, rounded top-right */
+  .login-showcase--rtl .login-showcase__mockup-wrap {
+    align-items: flex-start;
+  }
+
+  .login-showcase--rtl .login-showcase__mockup-outer {
+    margin: 0 0 0 -4rem;
+    border-radius: 0 1.68rem 0 0;
+    padding: 3.5px 3.5px 0 0;
+  }
+
+  .login-showcase--rtl .login-showcase__mockup-inner {
+    border-radius: 0 1.47rem 0 0;
+    padding: 4px 4px 0 0;
+  }
+
+  .login-showcase--rtl .login-showcase__mockup-screen {
+    border-radius: 0 1.26rem 0 0;
+  }
+
+  .login-showcase__image,
+  .login-showcase__image-placeholder {
     display: block;
+    width: 100%;
     height: 100%;
-    width: auto;
-    max-width: none;
     object-fit: cover;
     object-position: left top;
   }
 
+  .login-showcase--rtl .login-showcase__image,
+  .login-showcase--rtl .login-showcase__image-placeholder {
+    object-position: right top;
+  }
+
+  .login-showcase__slide[aria-hidden="true"] .login-showcase__mockup-wrap {
+    visibility: hidden;
+  }
+
   .login-showcase__image-placeholder {
-    width: 100%;
-    height: 100%;
     min-height: 240px;
     background: linear-gradient(
       180deg,

@@ -1,8 +1,8 @@
 .toast {
   position: fixed;
   top: 24px;
-  right: 24px;
-  left: auto;
+  inset-inline-end: 24px;
+  inset-inline-start: auto;
   bottom: auto;
   width: auto;
   max-width: min(520px, calc(100vw - 48px));
@@ -89,8 +89,8 @@
 @media (max-width: 767px) {
   .toast {
     top: max(12px, env(safe-area-inset-top, 0px));
-    right: max(12px, env(safe-area-inset-right, 0px));
-    left: max(12px, env(safe-area-inset-left, 0px));
+    inset-inline-end: max(12px, env(safe-area-inset-right, 0px));
+    inset-inline-start: max(12px, env(safe-area-inset-left, 0px));
     max-width: none;
     width: auto;
   }

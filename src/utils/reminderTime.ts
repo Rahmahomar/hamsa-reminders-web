@@ -1,4 +1,5 @@
 import type { Reminder } from "../types/reminder";
+import type { TranslateFn } from "./i18n";
 
 export function getNextPendingReminder(reminders: Reminder[]): Reminder | null {
   const now = Date.now();
@@ -12,8 +13,8 @@ export function getNextPendingReminder(reminders: Reminder[]): Reminder | null {
   return pending[0] ?? null;
 }
 
-export function formatCountdown(ms: number): string {
-  if (ms <= 0) return "Any moment now…";
+export function formatCountdown(ms: number, t: TranslateFn): string {
+  if (ms <= 0) return t("countdown.anyMoment");
 
   const totalSeconds = Math.floor(ms / 1000);
   const days = Math.floor(totalSeconds / 86400);
@@ -21,10 +22,16 @@ export function formatCountdown(ms: number): string {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  if (days > 0) return `${days}d ${hours}h ${minutes}m`;
-  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
-  if (minutes > 0) return `${minutes}m ${seconds}s`;
-  return `${seconds}s`;
+  if (days > 0) {
+    return t("countdown.dhms", { days, hours, minutes });
+  }
+  if (hours > 0) {
+    return t("countdown.hms", { hours, minutes, seconds });
+  }
+  if (minutes > 0) {
+    return t("countdown.ms", { minutes, seconds });
+  }
+  return t("countdown.s", { seconds });
 }
 
 export function getReminderProgress(reminder: Reminder, now = Date.now()): number {

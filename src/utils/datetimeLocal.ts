@@ -1,3 +1,5 @@
+import type { Locale } from "../constants/locale";
+
 export function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
@@ -40,11 +42,15 @@ export function localDatetimeInputValueToISO(localValue: string): string | undef
   return d ? d.toISOString() : undefined;
 }
 
-export function formatFireAtPreview(localValue: string): string {
+export function formatFireAtPreview(
+  localValue: string,
+  emptyLabel = "Choose when to fire",
+  locale?: Locale
+): string {
   const d = parseLocalDatetimeValue(localValue);
-  if (!d) return "Choose when to fire";
+  if (!d) return emptyLabel;
 
-  return d.toLocaleString(undefined, {
+  return d.toLocaleString(locale, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -86,16 +92,16 @@ export function mergeDateAndTime(date: string, time: string): string {
   return `${date}T${time}`;
 }
 
-export function formatReminderSchedule(iso: string): string {
+export function formatReminderSchedule(iso: string, locale?: Locale): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
 
-  const datePart = d.toLocaleDateString(undefined, {
+  const datePart = d.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
-  const timePart = d.toLocaleTimeString(undefined, {
+  const timePart = d.toLocaleTimeString(locale, {
     hour: "numeric",
     minute: "2-digit",
   });

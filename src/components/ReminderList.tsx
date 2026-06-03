@@ -1,4 +1,5 @@
 import { memo, useMemo } from "react";
+import { useTranslation } from "../context/LocaleContext";
 import type { ReminderListProps } from "../types/reminder-list";
 import { useNow } from "../hooks/useNow";
 import { EmptyReminders } from "./EmptyReminders";
@@ -18,6 +19,7 @@ export const ReminderList = memo(function ReminderList({
   onEdit,
   onDuplicate,
 }: ReminderListProps) {
+  const t = useTranslation();
   const needsClock = useMemo(
     () =>
       connected &&
@@ -38,7 +40,7 @@ export const ReminderList = memo(function ReminderList({
     >
       {listLoading && !hasLoadedOnce ? (
         <div role="status" aria-busy="true">
-          <p className="sr-only">Loading reminders…</p>
+          <p className="sr-only">{t("reminderList.loading")}</p>
           <ReminderListSkeleton />
         </div>
       ) : null}

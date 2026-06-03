@@ -4,15 +4,20 @@ import {
   LOGIN_SHOWCASE_AUTOPLAY_MS,
   LOGIN_SHOWCASE_SLIDES,
   LOGIN_SHOWCASE_SWIPE_THRESHOLD,
+  loginShowcaseSlideKey,
 } from "../constants/login-showcase-slides";
+import { useLocale } from "../context/LocaleContext";
 import {
   preloadLoginSlideImage,
   useLoginSlideImages,
 } from "../hooks/useLoginSlideImages";
+import { LanguageToggle } from "./LanguageToggle";
 import { LoginShowcaseSlideImage } from "./LoginShowcaseSlideImage";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function LoginShowcase() {
+  const { locale, t } = useLocale();
+  const isRtl = locale === "ar";
   const slides = LOGIN_SHOWCASE_SLIDES;
   const [activeIndex, setActiveIndex] = useState(0);
   const [slideWidth, setSlideWidth] = useState(0);
@@ -81,6 +86,7 @@ export function LoginShowcase() {
     setDragOffset(0);
 
     if (Math.abs(delta) >= LOGIN_SHOWCASE_SWIPE_THRESHOLD) {
+      // Carousel translateX is always LTR — swipe left = next, swipe right = prev
       if (delta < 0) {
         goNext();
       } else {
@@ -124,8 +130,9 @@ export function LoginShowcase() {
 
   return (
     <aside
-      className="login-showcase"
-      aria-label="Product preview"
+      className={`login-showcase${isRtl ? " login-showcase--rtl" : ""}`}
+      dir="ltr"
+      aria-label={t("loginShowcase.ariaPreview")}
       onMouseEnter={() => {
         pausedRef.current = true;
       }}
@@ -136,18 +143,19 @@ export function LoginShowcase() {
       <div className="login-showcase__backdrop" />
 
       <div className="login-showcase__theme">
+        <LanguageToggle className="language-toggle--compact" />
         <ThemeToggle className="theme-toggle--compact" />
       </div>
 
       {slides.length > 1 ? (
-        <div className="login-showcase__dots" role="tablist" aria-label="Preview slides">
+        <div className="login-showcase__dots" role="tablist" aria-label={t("loginShowcase.dotsAria")}>
           {slides.map((item, index) => (
             <button
               key={item.id}
               type="button"
               role="tab"
               aria-selected={index === activeIndex}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={t("loginShowcase.goToSlide", { n: index + 1 })}
               className={`login-showcase__dot${index === activeIndex ? " login-showcase__dot--active" : ""}`}
               onClick={() => goToSlide(index)}
             />
@@ -173,9 +181,25 @@ export function LoginShowcase() {
               key={item.id}
               aria-hidden={index !== activeIndex}
             >
-              <div className="login-showcase__copy">
-                <h2 className="login-showcase__title">{item.title}</h2>
-                <p className="login-showcase__desc">{item.description}</p>
+              <div
+                className={`login-showcase__copy${isRtl ? " login-showcase__copy--rtl" : " login-showcase__copy--ltr"}`}
+                dir={isRtl ? "rtl" : "ltr"}
+                lang={locale}
+              >
+                <h2
+                  className="login-showcase__title"
+                  dir={isRtl ? "rtl" : "ltr"}
+                  lang={locale}
+                >
+                  {t(loginShowcaseSlideKey(item.id, "title"))}
+                </h2>
+                <p
+                  className="login-showcase__desc"
+                  dir={isRtl ? "rtl" : "ltr"}
+                  lang={locale}
+                >
+                  {t(loginShowcaseSlideKey(item.id, "description"))}
+                </p>
               </div>
 
               <div className="login-showcase__mockup-wrap">

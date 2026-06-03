@@ -1,16 +1,17 @@
+import { useTranslation } from "../context/LocaleContext";
+
 export function ScheduleLocked() {
+  const t = useTranslation();
+
   return (
     <div className="schedule-locked">
       <div className="schedule-locked__icon" aria-hidden>
         🔐
       </div>
-      <p className="schedule-locked__title">Connect to see your schedule</p>
-      <p className="schedule-locked__text">
-        Paste your JWT token and hit Connect. Your reminders and live updates will
-        show up here.
-      </p>
+      <p className="schedule-locked__title">{t("scheduleLocked.title")}</p>
+      <p className="schedule-locked__text">{t("scheduleLocked.text")}</p>
       <a className="schedule-locked__cta" href="#connect">
-        Go to Connect
+        {t("scheduleLocked.cta")}
       </a>
     </div>
   );

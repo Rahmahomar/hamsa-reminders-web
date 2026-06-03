@@ -1,18 +1,12 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { Reminder } from "../types/reminder";
+import { useLocale, useTranslation } from "../context/LocaleContext";
+import type { ReminderCardProps } from "../types/reminder-card";
 import { formatReminderSchedule } from "../utils/datetimeLocal";
 import { computeReminderCardMenuPosition } from "../utils/reminderCardMenuPosition";
 import { formatCountdown, getReminderProgress } from "../utils/reminderTime";
 
-type ReminderCardProps = {
-  reminder: Reminder;
-  countdownNow?: number;
-  actionLoading: boolean;
-  onCancel: (id: string) => void;
-  onEdit: (reminder: Reminder) => void;
-  onDuplicate: (reminder: Reminder) => void;
-};
+
 
 export const ReminderCard = memo(function ReminderCard({
   reminder,
@@ -22,7 +16,14 @@ export const ReminderCard = memo(function ReminderCard({
   onEdit,
   onDuplicate,
 }: ReminderCardProps) {
+  const { locale } = useLocale();
+  const t = useTranslation();
   const isPending = reminder.status === "PENDING";
+  const statusKey = `reminderCard.status.${reminder.status}`;
+  const statusLabel = (() => {
+    const label = t(statusKey);
+    return label === statusKey ? reminder.status : label;
+  })();
   const fireAt = new Date(reminder.fireAt).getTime();
   const showCountdown =
     countdownNow !== undefined && isPending && fireAt > countdownNow;
@@ -91,7 +92,7 @@ export const ReminderCard = memo(function ReminderCard({
                 onEdit(reminder);
               }}
             >
-              Edit
+              {t("reminderCard.edit")}
             </button>
             <button
               type="button"
@@ -102,7 +103,7 @@ export const ReminderCard = memo(function ReminderCard({
                 onCancel(reminder.id);
               }}
             >
-              Cancel reminder
+              {t("reminderCard.cancelReminder")}
             </button>
           </>
         )}
@@ -115,7 +116,7 @@ export const ReminderCard = memo(function ReminderCard({
               onDuplicate(reminder);
             }}
           >
-            Duplicate
+            {t("reminderCard.duplicate")}
           </button>
         )}
       </div>,
@@ -149,23 +150,25 @@ export const ReminderCard = memo(function ReminderCard({
           <bdi>{reminder.title}</bdi>
         </h3>
         <p>
-          <bdi>{reminder.body || "No description"}</bdi>
+          <bdi>{reminder.body || t("reminderCard.noDescription")}</bdi>
         </p>
         <p className="reminder-card__when">
           <SmallCalendarIcon />
-          <bdi>{formatReminderSchedule(reminder.fireAt)}</bdi>
+          <span className="reminder-card__schedule" dir="ltr">
+            {formatReminderSchedule(reminder.fireAt, locale)}
+          </span>
         </p>
         {showCountdown && (
           <span className="reminder-card__countdown">
             <span className="reminder-card__countdown-dot" aria-hidden />
-            <bdi>{formatCountdown(remaining)}</bdi>
+            <bdi>{formatCountdown(remaining, t)}</bdi>
           </span>
         )}
       </div>
 
       <div className="reminder-card__aside">
         <span className={`reminder-card__status reminder-card__status--${reminder.status.toLowerCase()}`}>
-          {reminder.status}
+          {statusLabel}
         </span>
 
         <div className="reminder-card__actions">
@@ -173,11 +176,11 @@ export const ReminderCard = memo(function ReminderCard({
             type="button"
             className="reminder-card__duplicate"
             disabled={actionLoading}
-            aria-label={`Duplicate ${reminder.title}`}
+            aria-label={t("reminderCard.duplicateAria", { title: reminder.title })}
             onClick={() => onDuplicate(reminder)}
           >
             <DuplicateIcon />
-            <span>Duplicate</span>
+            <span>{t("reminderCard.duplicate")}</span>
           </button>
 
           <div className="reminder-card__menu-wrap">
@@ -185,7 +188,7 @@ export const ReminderCard = memo(function ReminderCard({
               ref={menuBtnRef}
               type="button"
               className="reminder-card__menu-btn"
-              aria-label="More actions"
+              aria-label={t("reminderCard.moreActions")}
               aria-expanded={menuOpen}
               aria-haspopup="menu"
               disabled={actionLoading}

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "../context/LocaleContext";
 import type { NextReminderPulseProps } from "../types/next-reminder-pulse";
 import { useNow } from "../hooks/useNow";
 import {
@@ -11,6 +12,7 @@ export function NextReminderPulse({
   reminders,
   connected,
 }: NextReminderPulseProps) {
+  const t = useTranslation();
   const next = useMemo(
     () => (connected ? getNextPendingReminder(reminders) : null),
     [connected, reminders]
@@ -28,10 +30,10 @@ export function NextReminderPulse({
     <div className="next-pulse" role="status" aria-live="polite">
       <span className="next-pulse__dot" aria-hidden />
       <div className="next-pulse__body">
-        <span className="next-pulse__label">Next up</span>
+        <span className="next-pulse__label">{t("nextPulse.label")}</span>
         <strong className="next-pulse__title">{next.title}</strong>
       </div>
-      <span className="next-pulse__time">{formatCountdown(remaining)}</span>
+      <span className="next-pulse__time">{formatCountdown(remaining, t)}</span>
       <div className="next-pulse__track" aria-hidden>
         <div
           className="next-pulse__fill"

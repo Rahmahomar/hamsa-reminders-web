@@ -95,7 +95,7 @@
   margin: 0;
   padding: 14px 18px;
   border: 1px solid var(--footer-input-border);
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   background: var(--footer-input-bg);
   color: var(--footer-text-strong);
   font-size: 0.9375rem;
@@ -117,7 +117,7 @@
   margin: 0;
   padding: 12px 28px;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   background: var(--primary);
   color: var(--primary-foreground);
   font-family: var(--font-body);

@@ -131,7 +131,7 @@ a:focus:not(:focus-visible) {
   align-items: center;
   justify-content: center;
   padding: 12px 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   background: var(--primary);
   color: var(--night);
   font-weight: 600;

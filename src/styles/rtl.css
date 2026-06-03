@@ -1,0 +1,18 @@
+[dir="rtl"] .login-showcase {
+  padding: 1.75rem 3rem 0 0;
+}
+
+@media (min-width: 768px) {
+  [dir="rtl"] .login-showcase__dots {
+    inset-inline-start: auto;
+    inset-inline-end: 3rem;
+  }
+}
+
+[dir="rtl"] .fire-at-picker__chevron {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .reminder-card__content {
+  text-align: start;
+}

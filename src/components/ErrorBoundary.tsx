@@ -1,5 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
+import { getMessages } from "../locales";
+import { loadLocale } from "../utils/locale";
+
 type Props = {
   children: ReactNode;
 };
@@ -7,6 +10,12 @@ type Props = {
 type State = {
   hasError: boolean;
 };
+
+function errorBoundaryCopy() {
+  const locale = loadLocale();
+  const m = getMessages(locale);
+  return m.errorBoundary;
+}
 
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false };
@@ -21,15 +30,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const copy = errorBoundaryCopy();
       return (
         <div className="error-boundary">
-          <h2>Something went wrong</h2>
-          <p>Please refresh the page. If the problem continues, check the console.</p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-          >
-            Refresh
+          <h2>{copy.title}</h2>
+          <p>{copy.message}</p>
+          <button type="button" onClick={() => window.location.reload()}>
+            {copy.refresh}
           </button>
         </div>
       );
