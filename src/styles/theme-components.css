@@ -393,7 +393,6 @@ article.reminder-card:hover {
 [dir="rtl"] .reminder-card__content,
 [dir="rtl"] .create-sidebar__field label,
 [dir="rtl"] .reminders-header__text,
-[dir="rtl"] .empty-state,
 [dir="rtl"] .modalContent,
 [dir="rtl"] .confirm-dialog {
   text-align: start;

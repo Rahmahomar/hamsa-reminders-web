@@ -188,6 +188,20 @@
   margin: 0 auto;
 }
 
+[dir="rtl"] .empty-state {
+  text-align: center;
+}
+
+[dir="rtl"] .empty-state__title,
+[dir="rtl"] .empty-state__text {
+  unicode-bidi: plaintext;
+  text-wrap: balance;
+}
+
+[dir="rtl"] .empty-state__text {
+  max-width: 22rem;
+}
+
 @keyframes bellFloat {
   0%,
   100% {
