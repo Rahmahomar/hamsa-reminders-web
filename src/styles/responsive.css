@@ -247,13 +247,6 @@ body {
   }
 }
 
-/* ——— Next pulse & toasts ——— */
-@media (max-width: 767px) {
-  .dashboard + .next-pulse {
-    margin-top: 16px;
-  }
-}
-
 /* ——— Page padding scale ——— */
 @media (max-width: 479px) {
   :root {

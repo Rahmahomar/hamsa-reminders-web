@@ -131,21 +131,23 @@ a:focus:not(:focus-visible) {
   align-items: center;
   justify-content: center;
   padding: 12px 22px;
+  border: none;
   border-radius: var(--radius-button);
   background: var(--primary);
-  color: var(--night);
+  color: var(--primary-foreground);
   font-weight: 600;
   font-size: 0.9375rem;
-  text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
   width: auto;
   margin: 0;
-  box-shadow: 0 8px 24px rgba(151, 222, 0, 28);
-  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 8px 24px rgba(151, 222, 0, 0.28);
+  transition: background 0.2s ease;
 }
 
 .schedule-locked__cta:hover {
-  background: #b8f033;
-  transform: translateY(-1px);
+  background: var(--primary-hover);
+  transform: none;
 }
 
 /* ——— Loading skeleton ——— */
@@ -198,7 +200,6 @@ a:focus:not(:focus-visible) {
   .reveal-delay-2,
   .reveal-delay-3,
   .empty-state__icon,
-  .next-pulse__dot,
   .reminder-skeleton__card {
     animation: none !important;
   }

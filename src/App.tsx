@@ -128,6 +128,10 @@ function App() {
     document.getElementById("reminder-title")?.focus();
   }, []);
 
+  const clearFilters = useCallback(() => {
+    setFilter(DEFAULT_REMINDER_FILTER);
+  }, []);
+
   const handleCancelRequest = useCallback((id: string) => {
     setCancelTargetId(id);
   }, []);
@@ -233,6 +237,8 @@ function App() {
             listLoading={listLoading}
             hasLoadedOnce={hasLoadedOnce}
             actionLoading={actionLoading}
+            onCreateReminder={focusCreateForm}
+            onClearFilters={clearFilters}
             onCancel={handleCancelRequest}
             onEdit={handleEditRequest}
             onDuplicate={handleDuplicate}

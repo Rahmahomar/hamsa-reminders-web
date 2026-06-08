@@ -1,6 +1,7 @@
 import { useTranslation } from "../context/LocaleContext";
+import type { ScheduleLockedProps } from "../types/schedule-locked";
 
-export function ScheduleLocked() {
+export function ScheduleLocked({ onCreateReminder }: ScheduleLockedProps) {
   const t = useTranslation();
 
   return (
@@ -10,9 +11,15 @@ export function ScheduleLocked() {
       </div>
       <p className="schedule-locked__title">{t("scheduleLocked.title")}</p>
       <p className="schedule-locked__text">{t("scheduleLocked.text")}</p>
-      <a className="schedule-locked__cta" href="#connect">
-        {t("scheduleLocked.cta")}
-      </a>
+      {onCreateReminder ? (
+        <button
+          type="button"
+          className="schedule-locked__cta"
+          onClick={onCreateReminder}
+        >
+          {t("scheduleLocked.cta")}
+        </button>
+      ) : null}
     </div>
   );
 }

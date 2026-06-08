@@ -98,6 +98,11 @@
   --footer-placeholder: rgba(255, 255, 255, 0.45);
   --footer-logo: #ffffff;
   --footer-btn-hover-fg: #070707;
+
+  --overlay-bg: rgba(232, 240, 249, 0.82);
+  --overlay-bg-strong: rgba(7, 7, 7, 0.45);
+  --modal-bg: var(--surface-elevated);
+  --modal-border: rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="dark"] {
@@ -194,4 +199,9 @@
   --footer-placeholder: rgba(255, 255, 255, 0.5);
   --footer-logo: #ffffff;
   --footer-btn-hover-fg: #0d1117;
+
+  --overlay-bg: rgba(13, 17, 23, 0.82);
+  --overlay-bg-strong: rgba(0, 0, 0, 0.62);
+  --modal-bg: var(--surface-elevated);
+  --modal-border: rgba(255, 255, 255, 0.1);
 }

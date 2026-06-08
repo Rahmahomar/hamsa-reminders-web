@@ -409,10 +409,6 @@ article.reminder-card:hover {
   direction: rtl;
 }
 
-[dir="rtl"] .next-pulse {
-  direction: rtl;
-}
-
 [dir="rtl"] .login-page__legal,
 [dir="rtl"] .login-page__help {
   text-align: start;

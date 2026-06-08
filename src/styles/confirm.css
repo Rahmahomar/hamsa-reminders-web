@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(7, 7, 7, 0.45);
+  background: var(--overlay-bg-strong);
   backdrop-filter: blur(6px);
 }
 
@@ -14,8 +14,10 @@
   width: min(100%, 420px);
   padding: 28px;
   border-radius: var(--radius-lg);
-  background: #fff;
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
   box-shadow: var(--shadow-xl);
+  color: var(--text);
 }
 
 .confirm-dialog h2 {
@@ -43,7 +45,7 @@
 }
 
 .confirm-dialog__actions .danger {
-  background: #d6001c;
+  background: var(--danger);
   color: #fff;
 }
 

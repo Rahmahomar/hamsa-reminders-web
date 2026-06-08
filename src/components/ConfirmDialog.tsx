@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useRef } from "react";
 import { useTranslation } from "../context/LocaleContext";
+import { useDialog } from "../hooks/useDialog";
 import type { ConfirmDialogProps } from "../types/confirm-dialog";
 import "../styles/confirm.css";
 
@@ -13,28 +14,31 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const t = useTranslation();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const resolvedConfirm = confirmLabel ?? t("common.confirm");
   const resolvedCancel = cancelLabel ?? t("common.cancel");
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !loading) onCancel();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onCancel, loading]);
+  useDialog(dialogRef, {
+    closeOnEscape: !loading,
+    onClose: onCancel,
+  });
 
   return (
     <div
       className="confirm-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-title"
+      role="presentation"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !loading) onCancel();
       }}
     >
-      <div className="confirm-dialog">
+      <div
+        ref={dialogRef}
+        className="confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-title"
+        tabIndex={-1}
+      >
         <h2 id="confirm-title">{title}</h2>
         <p>{message}</p>
         <div className="confirm-dialog__actions">

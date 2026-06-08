@@ -798,7 +798,7 @@ textarea {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(232, 240, 249, 0.82);
+  background: var(--overlay-bg);
   backdrop-filter: blur(18px);
   display: flex;
   align-items: center;
@@ -808,14 +808,15 @@ textarea {
 
 .fired-modal {
   width: min(520px, calc(100% - 32px));
-  background: white;
+  background: var(--modal-bg);
   border-radius: 40px;
   padding: 44px;
   text-align: center;
-  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--modal-border);
   animation: modalPop 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   position: relative;
+  color: var(--text);
 }
 
 .fired-icon {

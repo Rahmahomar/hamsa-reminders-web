@@ -4,7 +4,7 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(232, 240, 249, 0.82);
+  background: var(--overlay-bg);
   backdrop-filter: blur(18px);
   display: flex;
   align-items: center;
@@ -17,13 +17,14 @@
   max-height: calc(100dvh - 48px);
   display: flex;
   flex-direction: column;
-  background: white;
+  background: var(--modal-bg);
   border-radius: 40px;
   padding: 44px;
-  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--modal-border);
   animation: modalPop 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   overflow-y: auto;
+  color: var(--text);
 }
 
 .modalHeader {
@@ -46,8 +47,9 @@
   margin: 0;
   padding: 10px 14px;
   border-radius: var(--radius-button);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: white;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text);
 }
 
 .modalForm {
@@ -89,7 +91,6 @@
   }
 }
 
-/* Reuse animations from general styling */
 @keyframes overlayFadeIn {
   from {
     opacity: 0;
@@ -109,4 +110,3 @@
     transform: translateY(0) scale(1);
   }
 }
-

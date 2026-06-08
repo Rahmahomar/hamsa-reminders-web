@@ -15,6 +15,8 @@ export const ReminderList = memo(function ReminderList({
   listLoading = false,
   hasLoadedOnce = false,
   actionLoading = false,
+  onCreateReminder,
+  onClearFilters,
   onCancel,
   onEdit,
   onDuplicate,
@@ -46,11 +48,15 @@ export const ReminderList = memo(function ReminderList({
       ) : null}
 
       {!connected && !connecting && !(listLoading && !hasLoadedOnce) ? (
-        <ScheduleLocked />
+        <ScheduleLocked onCreateReminder={onCreateReminder} />
       ) : null}
 
       {connected && !(listLoading && !hasLoadedOnce) && reminders.length === 0 ? (
-        <EmptyReminders filtered={filtered} />
+        <EmptyReminders
+          filtered={filtered}
+          onCreateReminder={onCreateReminder}
+          onClearFilters={onClearFilters}
+        />
       ) : null}
 
       {connected && reminders.length > 0 ? (

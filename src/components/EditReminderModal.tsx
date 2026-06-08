@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "../context/LocaleContext";
+import { useDialog } from "../hooks/useDialog";
 import type {
   EditReminderModalPayload,
   EditReminderModalProps,
@@ -17,6 +18,7 @@ export function EditReminderModal({
   onSave,
 }: EditReminderModalProps) {
   const t = useTranslation();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState(reminder.title ?? "");
   const [body, setBody] = useState((reminder.body as string | undefined) ?? "");
   const [fireAtLocal, setFireAtLocal] = useState(
@@ -28,6 +30,14 @@ export function EditReminderModal({
 
   const [isOpen, setIsOpen] = useState(true);
 
+  useDialog(dialogRef, {
+    enabled: isOpen,
+    onClose: () => {
+      setIsOpen(false);
+      onClose();
+    },
+  });
+
   useEffect(() => {
     setTitle(reminder.title ?? "");
     setBody((reminder.body as string | undefined) ?? "");
@@ -37,23 +47,14 @@ export function EditReminderModal({
     setFireAtError("");
   }, [reminder]);
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        setIsOpen(false);
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+  const close = () => {
+    setIsOpen(false);
+    onClose();
+  };
 
   const handleOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      setIsOpen(false);
-      onClose();
+      close();
     }
   };
 
@@ -109,16 +110,22 @@ export function EditReminderModal({
     <div
       className="modalOverlay"
       onMouseDown={handleOverlayMouseDown}
-      role="dialog"
-      aria-modal="true"
+      role="presentation"
     >
-      <div className="modalContent edit-modal">
+      <div
+        ref={dialogRef}
+        className="modalContent edit-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-reminder-title"
+        tabIndex={-1}
+      >
         <div className="modalHeader">
-          <h2>{t("editReminder.title")}</h2>
+          <h2 id="edit-reminder-title">{t("editReminder.title")}</h2>
           <button
             type="button"
             className="modalClose"
-            onClick={onClose}
+            onClick={close}
             aria-label={t("editReminder.close")}
           >
             ✕
@@ -175,7 +182,7 @@ export function EditReminderModal({
           </div>
 
           <div className="modalActions">
-            <button type="button" className="secondary" onClick={onClose}>
+            <button type="button" className="secondary" onClick={close}>
               {t("common.cancel")}
             </button>
             <button type="submit" className="primary">

@@ -3,6 +3,7 @@ export const en = {
     cancel: "Cancel",
     confirm: "Confirm",
     pleaseWait: "Please wait…",
+    close: "Close",
     hamsaReminder: "Hamsa Reminder",
     copySuffix: "(copy)",
   },
@@ -11,6 +12,9 @@ export const en = {
     switchToAr: "Switch to Arabic",
     en: "EN",
     ar: "عربي",
+  },
+  layout: {
+    skipToContent: "Skip to content",
   },
   theme: {
     light: "Light",
@@ -96,11 +100,13 @@ export const en = {
     filteredText: "Try another filter or clear your search to see more items.",
     defaultTitle: "No reminders yet",
     defaultText: "Create your first one — your future self will thank you.",
+    createCta: "Create reminder",
+    clearFiltersCta: "Clear filters",
   },
   scheduleLocked: {
-    title: "Connect to see your schedule",
-    text: "Paste your JWT token and hit Connect. Your reminders and live updates will show up here.",
-    cta: "Go to Connect",
+    title: "Connecting to your schedule",
+    text: "Your reminders will appear once live updates connect. You can still create one now.",
+    cta: "Create reminder",
   },
   reminderList: {
     loading: "Loading reminders…",
@@ -202,7 +208,11 @@ export const en = {
     dismiss: "Got it",
   },
   nextPulse: {
-    label: "Next up",
+    label: "Next reminder",
+    remaining: "In",
+    aria: "Next reminder: {{title}} in {{time}}",
+    dock: "Minimize and tuck aside",
+    expand: "Show next reminder",
   },
   footer: {
     logoAria: "Hamsa — visit tryhamsa.com",

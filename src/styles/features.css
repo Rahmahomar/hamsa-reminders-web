@@ -66,8 +66,8 @@
   margin-bottom: 24px;
   padding: 16px 20px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(151, 222, 0, 0.35);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-strong);
   box-shadow: var(--shadow);
 }
 
@@ -95,126 +95,6 @@
   flex-direction: column;
   gap: 0;
   min-width: 0;
-}
-
-.reminder-filters {
-  margin-bottom: 16px;
-}
-
-.reminder-filters__tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.reminder-filters__tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: var(--radius-button);
-  background: rgba(255, 255, 255, 0.9);
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  color: var(--muted);
-  transition: 0.2s ease;
-  width: auto;
-  margin: 0;
-}
-
-.reminder-filters__tab:hover {
-  border-color: rgba(151, 222, 0, 0.5);
-  color: var(--text);
-  transform: none;
-  background: white;
-}
-
-.reminder-filters__tab--active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--night);
-  font-weight: 600;
-}
-
-.reminder-filters__count {
-  font-size: 0.75rem;
-  opacity: 0.85;
-}
-
-.reminder-filters__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.reminder-filters__search {
-  flex: 1 1 200px;
-  min-width: 0;
-  margin: 0;
-  padding: 12px 18px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
-  font-size: 0.9375rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.reminder-filters__search:focus {
-  border-color: rgba(151, 222, 0, 0.9);
-  box-shadow: inset 0 0 0 2px rgba(151, 222, 0, 0.35);
-  outline: none;
-}
-
-.reminder-filters__sort-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  flex: 1 1 100%;
-}
-
-@media (min-width: 640px) {
-  .reminder-filters__sort-group {
-    flex: 0 1 auto;
-  }
-}
-
-.reminder-filters__sort-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 10px 14px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.2;
-  color: var(--muted);
-  white-space: nowrap;
-  width: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
-}
-
-.reminder-filters__sort-btn:hover {
-  border-color: rgba(151, 222, 0, 0.5);
-  color: var(--text);
-  background: white;
-  transform: none;
-}
-
-.reminder-filters__sort-btn--active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--night);
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(151, 222, 0, 0.25);
 }
 
 .fire-at-presets {
@@ -274,29 +154,6 @@
 
 .error-boundary button {
   width: auto;
-}
-
-@media (max-width: 639px) {
-  .reminder-filters__row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .reminder-filters__search {
-    flex: 1 1 auto;
-    width: 100%;
-  }
-
-  .reminder-filters__sort-group {
-    width: 100%;
-  }
-
-  .reminder-filters__sort-btn {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding: 10px 12px;
-    font-size: 0.75rem;
-  }
 }
 
 @media (max-width: 767px) {

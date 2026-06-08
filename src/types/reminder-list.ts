@@ -9,6 +9,8 @@ export type ReminderListProps = {
   listLoading?: boolean;
   hasLoadedOnce?: boolean;
   actionLoading?: boolean;
+  onCreateReminder?: () => void;
+  onClearFilters?: () => void;
   onCancel: (id: string) => void;
   onEdit: (reminder: Reminder) => void;
   onDuplicate: (reminder: Reminder) => void;

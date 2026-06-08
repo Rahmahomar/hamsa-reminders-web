@@ -10,8 +10,8 @@
   margin: 0;
   padding: 18px 20px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: var(--surface-elevated);
+  border: 1px solid var(--modal-border);
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -40,7 +40,7 @@
   padding: 0;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface);
   color: var(--text);
   font-size: 18px;
   line-height: 1;

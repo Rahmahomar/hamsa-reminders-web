@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "../context/LocaleContext";
 import "../styles/toast.css";
 import type { ToastProps } from "../types/toast";
 
@@ -9,6 +10,7 @@ export function Toast({
   onClose,
   durationMs = 4000,
 }: ToastProps) {
+  const t = useTranslation();
   const [exiting, setExiting] = useState(false);
   const onCloseRef = useRef(onClose);
   const dismissTimerRef = useRef<number | null>(null);
@@ -46,7 +48,7 @@ export function Toast({
         className="toast-close"
         type="button"
         onClick={dismiss}
-        aria-label="Close"
+        aria-label={t("common.close")}
       >
         ×
       </button>

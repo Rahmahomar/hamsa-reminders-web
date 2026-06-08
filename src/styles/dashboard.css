@@ -133,7 +133,7 @@
   padding: 8px 16px;
   border: 1.5px solid rgba(0, 0, 0, 0.12);
   border-radius: var(--radius-button);
-  background: #ffffff;
+  background: var(--surface);
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--muted);
@@ -143,13 +143,13 @@
 .reminder-filters__tab:hover {
   border-color: rgba(151, 222, 0, 0.6);
   color: var(--night);
-  background: #ffffff;
+  background: var(--surface);
   transform: none;
 }
 
 .reminder-filters__tab--active {
   border-color: var(--primary);
-  background: #ffffff;
+  background: var(--surface);
   color: var(--night);
   font-weight: 600;
   box-shadow: 0 0 0 1px rgba(151, 222, 0, 0.35);
@@ -173,7 +173,7 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9aa3ad;
+  color: var(--muted);
   pointer-events: none;
 }
 
@@ -183,7 +183,7 @@
   padding: 12px 16px 12px 42px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--surface);
   font-size: 0.9375rem;
   box-shadow: none;
 }
@@ -296,7 +296,7 @@
 }
 
 .reminder-filters__sort-option:hover {
-  background: #f5f7fa;
+  background: var(--surface-hover);
   color: var(--primary);
 }
 
@@ -306,7 +306,7 @@
 }
 
 .reminder-filters__sort-option--selected {
-  background: #f5f7fa;
+  background: var(--surface-hover);
   color: var(--primary);
   font-weight: 600;
 }
@@ -388,8 +388,8 @@ article.reminder-card {
   align-items: start;
   justify-items: start;
   padding: 18px 20px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
   overflow: hidden;
@@ -481,7 +481,7 @@ article.reminder-card .reminder-card__aside {
   width: 100%;
   margin: 0;
   font-size: 0.8125rem;
-  color: #8a9199;
+  color: var(--muted);
   text-align: start;
 }
 
@@ -489,6 +489,24 @@ article.reminder-card .reminder-card__aside {
   display: inline;
   direction: ltr;
   unicode-bidi: isolate;
+}
+
+[dir="rtl"] .reminder-filters__search-icon {
+  left: auto;
+  right: 14px;
+}
+
+[dir="rtl"] .reminder-filters__search {
+  padding: 12px 42px 12px 16px;
+}
+
+[dir="rtl"] .reminder-filters__sort-icon {
+  right: auto;
+  left: 12px;
+}
+
+[dir="rtl"] .reminder-filters__sort-button {
+  padding: 10px 14px 10px 34px;
 }
 
 [dir="rtl"] .reminder-card__content h3 bdi,
@@ -511,7 +529,7 @@ article.reminder-card .reminder-card__aside {
 
 .reminder-card__when svg {
   flex-shrink: 0;
-  color: #9aa3ad;
+  color: var(--muted);
 }
 
 .reminder-card__aside {
@@ -533,18 +551,18 @@ article.reminder-card .reminder-card__aside {
 }
 
 .reminder-card__status--pending {
-  background: #fff4cc;
-  color: #c28a00;
+  background: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 .reminder-card__status--fired {
-  background: rgba(151, 222, 0, 0.35);
-  color: #3d6b00;
+  background: var(--success-bg);
+  color: var(--success-text);
 }
 
 .reminder-card__status--cancelled {
-  background: #ffdfe1;
-  color: #d6001c;
+  background: var(--cancelled-bg);
+  color: var(--cancelled-text);
 }
 
 .reminder-card__actions {
@@ -563,7 +581,7 @@ article.reminder-card .reminder-card__aside {
   padding: 8px 12px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--night);
@@ -571,7 +589,7 @@ article.reminder-card .reminder-card__aside {
 }
 
 .reminder-card__duplicate:hover {
-  background: #f7f9fb;
+  background: var(--surface-hover);
   transform: none;
   color: var(--night);
 }
@@ -583,7 +601,7 @@ article.reminder-card .reminder-card__aside {
   padding: 0;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   color: var(--muted);
   display: flex;
   align-items: center;
@@ -592,7 +610,7 @@ article.reminder-card .reminder-card__aside {
 }
 
 .reminder-card__menu-btn:hover {
-  background: #f7f9fb;
+  background: var(--surface-hover);
   transform: none;
   color: var(--night);
 }
@@ -672,11 +690,7 @@ article.reminder-card .reminder-card__aside {
   padding: 24px;
   border: 1px solid rgba(151, 222, 0, 0.2);
   border-radius: var(--radius-xl, 16px);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.98),
-    rgba(247, 255, 241, 0.96)
-  );
+  background: var(--card-bg-soft);
   box-shadow: none;
 }
 
@@ -747,7 +761,7 @@ article.reminder-card .reminder-card__aside {
   padding: 12px 14px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--surface);
   font-size: 0.9375rem;
   font-family: inherit;
   box-shadow: none;
@@ -798,12 +812,12 @@ article.reminder-card .reminder-card__aside {
 
 .create-sidebar__cancel {
   border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #ffffff;
+  background: var(--surface);
   color: var(--night);
 }
 
 .create-sidebar__cancel:hover {
-  background: #f3f5f7;
+  background: var(--surface-muted);
   transform: none;
   color: var(--night);
 }
@@ -822,11 +836,6 @@ article.reminder-card .reminder-card__aside {
 
 .create-sidebar--celebrate {
   animation: celebratePop 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Next pulse below dashboard */
-.dashboard + .next-pulse {
-  margin-top: 8px;
 }
 
 @media (max-width: 1023px) {

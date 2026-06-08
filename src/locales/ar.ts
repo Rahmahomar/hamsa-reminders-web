@@ -5,6 +5,7 @@ export const ar = {
     cancel: "إلغاء",
     confirm: "تأكيد",
     pleaseWait: "يرجى الانتظار…",
+    close: "إغلاق",
     hamsaReminder: "همسة تذكير",
     copySuffix: "(نسخة)",
   },
@@ -13,6 +14,9 @@ export const ar = {
     switchToAr: "التبديل إلى العربية",
     en: "EN",
     ar: "عربي",
+  },
+  layout: {
+    skipToContent: "تخطّي إلى المحتوى",
   },
   theme: {
     light: "فاتح",
@@ -97,11 +101,13 @@ export const ar = {
     filteredText: "جرّب فلتراً آخر أو امسح البحث لعرض المزيد.",
     defaultTitle: "لا توجد تذكيرات بعد",
     defaultText: "أنشئ أول تذكير — ستشكر نفسك لاحقاً.",
+    createCta: "إنشاء تذكير",
+    clearFiltersCta: "مسح الفلاتر",
   },
   scheduleLocked: {
-    title: "سجّل الدخول لعرض جدولك",
-    text: "الصق رمز JWT واضغط اتصال. ستظهر تذكيراتك والتحديثات المباشرة هنا.",
-    cta: "الذهاب إلى الاتصال",
+    title: "جاري الاتصال بجدولك",
+    text: "ستظهر تذكيراتك عند اكتمال الاتصال المباشر. يمكنك إنشاء تذكير الآن.",
+    cta: "إنشاء تذكير",
   },
   reminderList: {
     loading: "جاري تحميل التذكيرات…",
@@ -202,7 +208,11 @@ export const ar = {
     dismiss: "حسناً",
   },
   nextPulse: {
-    label: "التالي",
+    label: "التذكير التالي",
+    remaining: "بعد",
+    aria: "التذكير التالي: {{title}} بعد {{time}}",
+    dock: "تصغير وإبعاد للجانب",
+    expand: "إظهار التذكير التالي",
   },
   footer: {
     logoAria: "همسة — زيارة tryhamsa.com",
